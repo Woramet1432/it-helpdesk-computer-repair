@@ -52,14 +52,24 @@ test('validateRegister validates email format', () => {
   assert.ok(badEmail.errors.email);
 });
 
-test('validateTicketCreate enforces required title, description, category, and contact info', () => {
+test('validateTicketCreate enforces required title, category, and contact info (description optional)', () => {
   const empty = validateTicketCreate({});
   assert.equal(empty.isValid, false);
   assert.ok(empty.errors.title);
-  assert.ok(empty.errors.description);
+  assert.equal(empty.errors.description, undefined);
   assert.ok(empty.errors.category);
   assert.ok(empty.errors.location);
   assert.ok(empty.errors.contactPhone);
+
+  const validWithoutDesc = validateTicketCreate({
+    title: 'คอมพิวเตอร์จอฟ้าเปิดไม่ติด',
+    category: 'computer_laptop',
+    priority: 'high',
+    location: 'ชั้น 3 อาคาร B',
+    contactPhone: '0812345678',
+  });
+  assert.equal(validWithoutDesc.isValid, true);
+  assert.equal(Object.keys(validWithoutDesc.errors).length, 0);
 
   const valid = validateTicketCreate({
     title: 'คอมพิวเตอร์จอฟ้าเปิดไม่ติด',

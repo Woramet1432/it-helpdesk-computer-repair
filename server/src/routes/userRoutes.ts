@@ -9,8 +9,8 @@ import { requireAuth, requireRole } from '../middleware/auth.ts';
 
 const router = Router();
 
-// Departments can be viewed by all authenticated users (needed for ticket submission)
-router.get('/departments', requireAuth, listDepartments);
+// Departments can be viewed publicly (needed for repair form department selection)
+router.get('/departments', listDepartments);
 
 // Technicians list can be viewed by authenticated users (needed for filtering and assignment)
 router.get('/technicians', requireAuth, listTechnicians);

@@ -95,9 +95,9 @@ export interface TicketAttachment {
 export interface TicketComment {
   id: number;
   ticketId: number;
-  userId: number;
+  userId?: number | null;
   userName: string;
-  userRole: UserRole;
+  userRole?: UserRole | 'guest';
   isInternal: boolean;
   comment: string;
   createdAt: string;
@@ -106,7 +106,7 @@ export interface TicketComment {
 export interface TicketStatusHistory {
   id: number;
   ticketId: number;
-  changedByUserId: number;
+  changedByUserId?: number | null;
   changedByName: string;
   fromStatus?: TicketStatus | null;
   toStatus: TicketStatus;
@@ -117,7 +117,8 @@ export interface TicketStatusHistory {
 export interface TicketFeedback {
   id: number;
   ticketId: number;
-  userId: number;
+  userId?: number | null;
+  userName?: string;
   rating: number; // 1-5
   comment?: string;
   createdAt: string;
@@ -126,10 +127,11 @@ export interface TicketFeedback {
 export interface Ticket {
   id: number;
   ticketNumber: string;
-  requesterId: number;
+  trackingCode?: string;
+  requesterId?: number | null;
   requesterName?: string;
   requesterEmail?: string;
-  requesterRole?: UserRole;
+  requesterRole?: UserRole | 'guest';
   departmentId?: number | null;
   departmentName?: string;
   assetId?: number | null;

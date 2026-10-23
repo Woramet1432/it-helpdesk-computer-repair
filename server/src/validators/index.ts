@@ -81,8 +81,9 @@ export function validateTicketCreate(body: any): ValidationResult {
     errors.title = 'หัวข้อปัญหาต้องไม่เกิน 200 ตัวอักษร';
   }
 
-  if (!body.description || typeof body.description !== 'string' || body.description.trim().length < 10) {
-    errors.description = 'กรุณาระบุรายละเอียดปัญหาที่พบให้ชัดเจน (อย่างน้อย 10 ตัวอักษร)';
+  // Description is optional; if provided, must not exceed 3000 chars
+  if (body.description && typeof body.description === 'string' && body.description.length > 3000) {
+    errors.description = 'รายละเอียดปัญหาต้องไม่เกิน 3,000 ตัวอักษร';
   }
 
   if (!body.category || !VALID_CATEGORIES.includes(body.category)) {
@@ -128,6 +129,64 @@ export function validateFeedback(body: any): ValidationResult {
   const rating = Number(body.rating);
   if (isNaN(rating) || rating < 1 || rating > 5) {
     errors.rating = 'คะแนนความพึงพอใจต้องอยู่ระหว่าง 1 ถึง 5 ดาว';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}
+
+export function validatePublicTicketCreate(body: any): ValidationResult {
+  const errors: Record<string, string> = {};
+
+  if (!body.requesterName || typeof body.requesterName !== 'string' || body.requesterName.trim().length < 2) {
+    errors.requesterName = 'กรุณาระบุชื่อ-นามสกุลผู้แจ้งซ่อม';
+  }
+
+  if (!body.contactPhone || typeof body.contactPhone !== 'string' || body.contactPhone.trim().length < 9) {
+    errors.contactPhone = 'กรุณาระบุเบอร์โทรศัพท์หรือช่องทางติดต่อที่ถูกต้อง (อย่างน้อย 9 หลัก)';
+  }
+
+  const deptIdNum = Number(body.departmentId);
+  if (!body.departmentId || isNaN(deptIdNum) || deptIdNum <= 0) {
+    errors.departmentId = 'กรุณากรอกรหัสแผนกเป็นตัวเลข';
+  }
+
+  if (!body.category || !VALID_CATEGORIES.includes(body.category)) {
+    errors.category = 'กรุณาเลือกประเภทอุปกรณ์หรือหมวดหมู่ปัญหา';
+  }
+
+  if (!body.title || typeof body.title !== 'string' || body.title.trim().length < 5) {
+    errors.title = 'กรุณากรอกหัวข้อปัญหาหรือสรุปอาการ (อย่างน้อย 5 ตัวอักษร)';
+  } else if (body.title.length > 200) {
+    errors.title = 'หัวข้อปัญหาต้องไม่เกิน 200 ตัวอักษร';
+  }
+
+  // Description is optional; if provided, must not exceed 3000 chars
+  if (body.description && typeof body.description === 'string' && body.description.length > 3000) {
+    errors.description = 'รายละเอียดปัญหาต้องไม่เกิน 3,000 ตัวอักษร';
+  }
+
+  if (!body.location || typeof body.location !== 'string' || body.location.trim().length === 0) {
+    errors.location = 'กรุณาระบุสถานที่ตั้งของอุปกรณ์ เช่น อาคาร, ชั้น, โต๊ะทำงาน';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}
+
+export function validateTrackTicket(body: any): ValidationResult {
+  const errors: Record<string, string> = {};
+
+  if (!body.ticketNumber || typeof body.ticketNumber !== 'string' || body.ticketNumber.trim().length === 0) {
+    errors.ticketNumber = 'กรุณากรอกหมายเลข Ticket';
+  }
+
+  if (!body.verificationCode || typeof body.verificationCode !== 'string' || body.verificationCode.trim().length === 0) {
+    errors.verificationCode = 'กรุณากรอกรหัสติดตาม (Tracking Code) หรือเบอร์โทรศัพท์ที่ใช้แจ้ง';
   }
 
   return {

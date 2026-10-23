@@ -1,10 +1,12 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { db } from '../db/database.ts';
 import { AuthenticatedRequest } from '../middleware/auth.ts';
 import {
   validateTicketCreate,
   validateComment,
   validateFeedback,
+  validatePublicTicketCreate,
+  validateTrackTicket,
   VALID_STATUSES,
   VALID_PRIORITIES,
 } from '../validators/index.ts';
@@ -100,7 +102,7 @@ export async function createTicket(req: AuthenticatedRequest, res: Response) {
     category: req.body.category,
     priority: req.body.priority || 'normal',
     title: req.body.title.trim(),
-    description: req.body.description.trim(),
+    description: req.body.description?.trim() || req.body.title.trim(),
     location: req.body.location.trim(),
     contactPhone: req.body.contactPhone.trim(),
     attachmentFiles,
@@ -347,6 +349,162 @@ export async function submitFeedback(req: AuthenticatedRequest, res: Response) {
     ipAddress: (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress,
     details: { rating: feedback.rating },
   });
+
+  return res.status(201).json({
+    success: true,
+    message: 'ขอบคุณสำหรับการประเมินความพึงพอใจ',
+    data: feedback,
+  });
+}
+
+// --- Public Handlers (No login required for employees/guests) ---
+
+export async function createPublicTicketHandler(req: Request, res: Response) {
+  const validation = validatePublicTicketCreate(req.body);
+  if (!validation.isValid) {
+    return res.status(400).json({
+      success: false,
+      message: 'ข้อมูลการแจ้งซ่อมไม่ถูกต้อง กรุณาตรวจสอบข้อมูลที่ระบุ',
+      errors: validation.errors,
+    });
+  }
+
+  const files = (req.files as Express.Multer.File[]) || [];
+  const attachmentFiles = files.map((f) => ({
+    filename: f.filename,
+    originalName: f.originalname,
+    mimeType: f.mimetype,
+    fileSize: f.size,
+    filePath: `/api/uploads/${f.filename}`,
+  }));
+
+  const ticket = await db.createPublicTicket({
+    requesterName: req.body.requesterName.trim(),
+    departmentId: Number(req.body.departmentId),
+    category: req.body.category,
+    priority: req.body.priority || 'normal',
+    title: req.body.title.trim(),
+    description: req.body.description?.trim() || req.body.title.trim(),
+    location: req.body.location.trim(),
+    contactPhone: req.body.contactPhone.trim(),
+    assetNumberCustom: req.body.assetNumberCustom?.trim() || undefined,
+    attachmentFiles,
+  });
+
+  await db.addAuditLog({
+    userId: null,
+    userName: ticket.requesterName,
+    action: 'PUBLIC_TICKET_CREATED',
+    targetType: 'TICKET',
+    targetId: String(ticket.id),
+    ipAddress: (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress,
+    details: {
+      ticketNumber: ticket.ticketNumber,
+      category: ticket.category,
+      priority: ticket.priority,
+      attachmentsCount: attachmentFiles.length,
+    },
+  });
+
+  return res.status(201).json({
+    success: true,
+    message: 'แจ้งซ่อมสำเร็จ ระบบได้รับข้อมูลเรียบร้อยแล้ว',
+    data: ticket,
+  });
+}
+
+export async function trackTicketHandler(req: Request, res: Response) {
+  const validation = validateTrackTicket(req.body);
+  if (!validation.isValid) {
+    return res.status(400).json({
+      success: false,
+      message: 'กรุณากรอกข้อมูลสำหรับติดตามสถานะ',
+      errors: validation.errors,
+    });
+  }
+
+  const ticket = await db.getTicketByTracking(
+    req.body.ticketNumber,
+    req.body.verificationCode
+  );
+
+  if (!ticket) {
+    return res.status(404).json({
+      success: false,
+      message: 'ไม่พบข้อมูลใบแจ้งซ่อม หรือรหัสติดตาม / เบอร์โทรศัพท์ไม่ถูกต้อง',
+    });
+  }
+
+  return res.json({
+    success: true,
+    data: ticket,
+  });
+}
+
+export async function addPublicCommentHandler(req: Request, res: Response) {
+  const { ticketNumber, verificationCode, comment, commenterName } = req.body;
+  if (!ticketNumber || !verificationCode) {
+    return res.status(400).json({ success: false, message: 'ข้อมูลการยืนยันตัวตนไม่ครบถ้วน' });
+  }
+
+  const validation = validateComment(req.body);
+  if (!validation.isValid) {
+    return res.status(400).json({
+      success: false,
+      message: 'ข้อความไม่ถูกต้อง',
+      errors: validation.errors,
+    });
+  }
+
+  const newComment = await db.addPublicComment(
+    ticketNumber,
+    verificationCode,
+    comment.trim(),
+    commenterName
+  );
+
+  if (!newComment) {
+    return res.status(403).json({
+      success: false,
+      message: 'ไม่สามารถส่งข้อความได้ เนื่องจากรหัสติดตามไม่ถูกต้อง',
+    });
+  }
+
+  return res.status(201).json({
+    success: true,
+    message: 'ส่งข้อความเรียบร้อยแล้ว',
+    data: newComment,
+  });
+}
+
+export async function submitPublicFeedbackHandler(req: Request, res: Response) {
+  const { ticketNumber, verificationCode, rating, comment } = req.body;
+  if (!ticketNumber || !verificationCode) {
+    return res.status(400).json({ success: false, message: 'ข้อมูลการยืนยันตัวตนไม่ครบถ้วน' });
+  }
+
+  const validation = validateFeedback(req.body);
+  if (!validation.isValid) {
+    return res.status(400).json({
+      success: false,
+      message: 'คะแนนการประเมินไม่ถูกต้อง',
+      errors: validation.errors,
+    });
+  }
+
+  const feedback = await db.submitPublicFeedback(
+    ticketNumber,
+    verificationCode,
+    Number(rating),
+    comment?.trim()
+  );
+
+  if (!feedback) {
+    return res.status(403).json({
+      success: false,
+      message: 'ไม่สามารถประเมินความพึงพอใจได้ กรุณาตรวจสอบรหัสติดตาม',
+    });
+  }
 
   return res.status(201).json({
     success: true,

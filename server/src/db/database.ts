@@ -114,6 +114,24 @@ export class DatabaseService {
               console.log('✅ Initial demo data seeded successfully into PostgreSQL');
             }
           }
+
+          // Check if migration 002 (guest tickets) is applied
+          try {
+            const colRes = await client.query(`
+              SELECT column_name FROM information_schema.columns 
+              WHERE table_name = 'tickets' AND column_name = 'tracking_code'
+            `);
+            if (colRes.rowCount === 0) {
+              const mig002Path = path.resolve(process.cwd(), 'server/migrations/002_guest_tickets.sql');
+              if (fs.existsSync(mig002Path)) {
+                const migSql = fs.readFileSync(mig002Path, 'utf8');
+                await client.query(migSql);
+                console.log('✅ PostgreSQL migration 002 applied successfully');
+              }
+            }
+          } catch (migErr: any) {
+            console.warn('⚠️ Migration 002 check:', migErr.message);
+          }
         } catch (err: any) {
           console.warn('⚠️ Auto-migration check:', err.message);
         } finally {
@@ -552,6 +570,15 @@ export class DatabaseService {
     return `TK-${year}${month}-${seq}`;
   }
 
+  public generateTrackingCode(): string {
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `TRK-${code}`;
+  }
+
   public async getTickets(options: {
     userId?: number;
     role?: string;
@@ -567,8 +594,8 @@ export class DatabaseService {
     if (this.isPostgresConnected && this.pool) {
       try {
         let q = `
-          SELECT t.id, t.ticket_number as "ticketNumber", t.requester_id as "requesterId", 
-                 req.full_name as "requesterName", req.email as "requesterEmail", req.role as "requesterRole",
+          SELECT t.id, t.ticket_number as "ticketNumber", t.tracking_code as "trackingCode", t.requester_id as "requesterId", 
+                 COALESCE(req.full_name, t.requester_name) as "requesterName", req.email as "requesterEmail", COALESCE(req.role, 'guest') as "requesterRole",
                  t.department_id as "departmentId", d.name as "departmentName", 
                  t.asset_id as "assetId", COALESCE(a.asset_number, t.asset_number_custom) as "assetNumber", a.name as "assetName",
                  t.category, t.priority, t.status, t.title, t.description, t.location, t.contact_phone as "contactPhone",
@@ -681,8 +708,8 @@ export class DatabaseService {
     if (this.isPostgresConnected && this.pool) {
       try {
         const res = await this.pool.query(`
-          SELECT t.id, t.ticket_number as "ticketNumber", t.requester_id as "requesterId", 
-                 req.full_name as "requesterName", req.email as "requesterEmail", req.role as "requesterRole",
+          SELECT t.id, t.ticket_number as "ticketNumber", t.tracking_code as "trackingCode", t.requester_id as "requesterId", 
+                 COALESCE(req.full_name, t.requester_name) as "requesterName", req.email as "requesterEmail", COALESCE(req.role, 'guest') as "requesterRole",
                  t.department_id as "departmentId", d.name as "departmentName", 
                  t.asset_id as "assetId", COALESCE(a.asset_number, t.asset_number_custom) as "assetNumber", a.name as "assetName",
                  t.category, t.priority, t.status, t.title, t.description, t.location, t.contact_phone as "contactPhone",
@@ -701,10 +728,10 @@ export class DatabaseService {
           const ticket = res.rows[0];
           // load comments
           let cQuery = `
-            SELECT c.id, c.ticket_id as "ticketId", c.user_id as "userId", u.full_name as "userName", u.role as "userRole",
+            SELECT c.id, c.ticket_id as "ticketId", c.user_id as "userId", COALESCE(u.full_name, c.user_name, 'ผู้แจ้งซ่อม') as "userName", COALESCE(u.role, 'guest') as "userRole",
                    c.is_internal as "isInternal", c.comment, c.created_at as "createdAt"
             FROM ticket_comments c
-            JOIN users u ON c.user_id = u.id
+            LEFT JOIN users u ON c.user_id = u.id
             WHERE c.ticket_id = $1
           `;
           if (!includeInternal) cQuery += ` AND c.is_internal = FALSE`;
@@ -714,10 +741,10 @@ export class DatabaseService {
 
           // load history
           const historyRes = await this.pool.query(`
-            SELECT h.id, h.ticket_id as "ticketId", h.changed_by_user_id as "changedByUserId", u.full_name as "changedByName",
+            SELECT h.id, h.ticket_id as "ticketId", h.changed_by_user_id as "changedByUserId", COALESCE(u.full_name, h.changed_by_name, 'ระบบ') as "changedByName",
                    h.from_status as "fromStatus", h.to_status as "toStatus", h.notes, h.created_at as "createdAt"
             FROM ticket_status_history h
-            JOIN users u ON h.changed_by_user_id = u.id
+            LEFT JOIN users u ON h.changed_by_user_id = u.id
             WHERE h.ticket_id = $1
             ORDER BY h.created_at ASC
           `, [id]);
@@ -725,16 +752,21 @@ export class DatabaseService {
 
           // load feedback
           const fbRes = await this.pool.query(`
-            SELECT id, ticket_id as "ticketId", user_id as "userId", rating, comment, created_at as "createdAt"
-            FROM ticket_feedback WHERE ticket_id = $1
+            SELECT f.id, f.ticket_id as "ticketId", f.user_id as "userId", COALESCE(u.full_name, 'ผู้แจ้งซ่อม') as "userName", f.rating, f.comment, f.created_at as "createdAt"
+            FROM ticket_feedback f
+            LEFT JOIN users u ON f.user_id = u.id
+            WHERE f.ticket_id = $1
           `, [id]);
           ticket.feedback = fbRes.rows[0] || null;
 
           // attachments
           const attRes = await this.pool.query(`
-            SELECT id, ticket_id as "ticketId", uploader_id as "uploaderId", filename, original_name as "originalName",
-                   mime_type as "mimeType", file_size as "fileSize", file_path as "filePath", created_at as "createdAt"
-            FROM ticket_attachments WHERE ticket_id = $1
+            SELECT a.id, a.ticket_id as "ticketId", a.uploader_id as "uploaderId", COALESCE(u.full_name, 'ผู้แจ้ง') as "uploaderName",
+                   a.filename, a.original_name as "originalName", a.mime_type as "mimeType", a.file_size as "fileSize",
+                   a.file_path as "filePath", a.created_at as "createdAt"
+            FROM ticket_attachments a
+            LEFT JOIN users u ON a.uploader_id = u.id
+            WHERE a.ticket_id = $1
           `, [id]);
           ticket.attachments = attRes.rows;
 
@@ -751,10 +783,10 @@ export class DatabaseService {
   }
 
   private populateTicketRelations(ticket: Ticket, includeInternal = false): Ticket {
-    const requester = this.users.find((u) => u.id === ticket.requesterId);
-    const tech = this.users.find((u) => u.id === ticket.assignedTechnicianId);
+    const requester = ticket.requesterId ? this.users.find((u) => u.id === ticket.requesterId) : null;
+    const tech = ticket.assignedTechnicianId ? this.users.find((u) => u.id === ticket.assignedTechnicianId) : null;
     const dept = this.departments.find((d) => d.id === ticket.departmentId);
-    const asset = this.assets.find((a) => a.id === ticket.assetId);
+    const asset = ticket.assetId ? this.assets.find((a) => a.id === ticket.assetId) : null;
     const feedback = this.feedbacks.find((f) => f.ticketId === ticket.id) || null;
 
     let ticketComments = this.comments.filter((c) => c.ticketId === ticket.id);
@@ -767,18 +799,272 @@ export class DatabaseService {
 
     return {
       ...ticket,
-      requesterName: requester?.fullName,
-      requesterEmail: requester?.email,
-      requesterRole: requester?.role,
-      departmentName: dept?.name,
-      assignedTechnicianName: tech?.fullName,
-      assetName: asset?.name,
+      requesterName: requester?.fullName || ticket.requesterName || 'ผู้แจ้งซ่อม (พนักงาน)',
+      requesterEmail: requester?.email || ticket.requesterEmail,
+      requesterRole: requester?.role || ticket.requesterRole || 'guest',
+      departmentName: dept?.name || ticket.departmentName,
+      assignedTechnicianName: tech?.fullName || ticket.assignedTechnicianName,
+      assetName: asset?.name || ticket.assetName,
       assetNumber: ticket.assetNumber || asset?.assetNumber || ticket.assetNumberCustom,
       comments: ticketComments,
       attachments: ticketAttachments,
       history: ticketHistory,
       feedback,
     };
+  }
+
+  // --- Public Guest Ticket Methods (No login required) ---
+  public async createPublicTicket(ticketData: {
+    requesterName: string;
+    departmentId: number;
+    category: TicketCategory;
+    priority?: TicketPriority;
+    title: string;
+    description?: string;
+    location: string;
+    contactPhone: string;
+    assetNumberCustom?: string;
+    attachmentFiles?: Array<{
+      filename: string;
+      originalName: string;
+      mimeType: string;
+      fileSize: number;
+      filePath: string;
+    }>;
+  }): Promise<Ticket> {
+    const ticketNumber = this.generateTicketNumber();
+    const trackingCode = this.generateTrackingCode();
+    const id = this.ticketCounter++;
+    const now = new Date().toISOString();
+    const priority = ticketData.priority || 'normal';
+    const finalDescription = ticketData.description?.trim() || ticketData.title.trim();
+
+    if (this.isPostgresConnected && this.pool) {
+      try {
+        const res = await this.pool.query(`
+          INSERT INTO tickets (ticket_number, tracking_code, requester_name, department_id, asset_number_custom, category, priority, status, title, description, location, contact_phone)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, 'new', $8, $9, $10, $11)
+          RETURNING id
+        `, [
+          ticketNumber,
+          trackingCode,
+          ticketData.requesterName,
+          ticketData.departmentId,
+          ticketData.assetNumberCustom || null,
+          ticketData.category,
+          priority,
+          ticketData.title,
+          finalDescription,
+          ticketData.location,
+          ticketData.contactPhone,
+        ]);
+        const newId = res.rows[0].id;
+
+        await this.pool.query(`
+          INSERT INTO ticket_status_history (ticket_id, changed_by_user_id, from_status, to_status, notes)
+          VALUES ($1, NULL, NULL, 'new', 'แจ้งซ่อมผ่านระบบหน้าเว็บ (พนักงานแจ้งซ่อมโดยไม่ต้องเข้าสู่ระบบ)')
+        `, [newId]);
+
+        if (ticketData.attachmentFiles && ticketData.attachmentFiles.length > 0) {
+          for (const f of ticketData.attachmentFiles) {
+            await this.pool.query(`
+              INSERT INTO ticket_attachments (ticket_id, uploader_id, filename, original_name, mime_type, file_size, file_path)
+              VALUES ($1, NULL, $2, $3, $4, $5, $6)
+            `, [newId, f.filename, f.originalName, f.mimeType, f.fileSize, f.filePath]);
+          }
+        }
+
+        const created = await this.getTicketById(newId, false);
+        if (created) {
+          created.trackingCode = trackingCode;
+          return created;
+        }
+      } catch (e) {
+        console.warn('Postgres createPublicTicket fallback', e);
+      }
+    }
+
+    const newTicket: Ticket = {
+      id,
+      ticketNumber,
+      trackingCode,
+      requesterId: null,
+      requesterName: ticketData.requesterName,
+      requesterRole: 'guest',
+      departmentId: ticketData.departmentId,
+      assetId: null,
+      assetNumber: ticketData.assetNumberCustom,
+      assetNumberCustom: ticketData.assetNumberCustom,
+      category: ticketData.category,
+      priority,
+      status: 'new',
+      title: ticketData.title,
+      description: finalDescription,
+      location: ticketData.location,
+      contactPhone: ticketData.contactPhone,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.tickets.unshift(newTicket);
+    this.statusHistory.push({
+      id: this.historyCounter++,
+      ticketId: id,
+      changedByUserId: null,
+      changedByName: ticketData.requesterName,
+      fromStatus: null,
+      toStatus: 'new',
+      notes: 'แจ้งซ่อมผ่านระบบหน้าเว็บ (พนักงานแจ้งซ่อมโดยไม่ต้องเข้าสู่ระบบ)',
+      createdAt: now,
+    });
+
+    if (ticketData.attachmentFiles && ticketData.attachmentFiles.length > 0) {
+      for (const file of ticketData.attachmentFiles) {
+        this.attachments.push({
+          id: this.attachmentCounter++,
+          ticketId: id,
+          uploaderId: 0,
+          uploaderName: ticketData.requesterName,
+          filename: file.filename,
+          originalName: file.originalName,
+          mimeType: file.mimeType,
+          fileSize: file.fileSize,
+          filePath: file.filePath,
+          createdAt: now,
+        });
+      }
+    }
+
+    const populated = this.populateTicketRelations(newTicket, false);
+    populated.trackingCode = trackingCode;
+    return populated;
+  }
+
+  public async getTicketByTracking(
+    ticketNumber: string,
+    verificationCode: string
+  ): Promise<Ticket | null> {
+    const cleanNumber = ticketNumber.trim().toUpperCase();
+    const cleanVerify = verificationCode.trim();
+    const cleanPhone = cleanVerify.replace(/[-\s]/g, '');
+
+    if (this.isPostgresConnected && this.pool) {
+      try {
+        const res = await this.pool.query(`
+          SELECT t.id
+          FROM tickets t
+          WHERE UPPER(t.ticket_number) = $1
+            AND (
+              UPPER(COALESCE(t.tracking_code, '')) = $2
+              OR REPLACE(REPLACE(t.contact_phone, '-', ''), ' ', '') = $3
+            )
+        `, [cleanNumber, cleanVerify.toUpperCase(), cleanPhone]);
+
+        if (res.rows[0]) {
+          return this.getTicketById(res.rows[0].id, false);
+        }
+        return null;
+      } catch (e) {
+        console.warn('Postgres getTicketByTracking fallback', e);
+      }
+    }
+
+    const found = this.tickets.find((t) => {
+      if (t.ticketNumber.toUpperCase() !== cleanNumber) return false;
+      const matchCode = t.trackingCode && t.trackingCode.toUpperCase() === cleanVerify.toUpperCase();
+      const matchPhone = t.contactPhone && t.contactPhone.replace(/[-\s]/g, '') === cleanPhone;
+      return matchCode || matchPhone;
+    });
+
+    if (!found) return null;
+    return this.getTicketById(found.id, false);
+  }
+
+  public async addPublicComment(
+    ticketNumber: string,
+    verificationCode: string,
+    comment: string,
+    commenterName?: string
+  ): Promise<TicketComment | null> {
+    const ticket = await this.getTicketByTracking(ticketNumber, verificationCode);
+    if (!ticket) return null;
+
+    const authorName = commenterName?.trim() || ticket.requesterName || 'ผู้แจ้งซ่อม';
+
+    if (this.isPostgresConnected && this.pool) {
+      try {
+        const res = await this.pool.query(`
+          INSERT INTO ticket_comments (ticket_id, user_id, user_name, is_internal, comment)
+          VALUES ($1, NULL, $2, FALSE, $3)
+          RETURNING id, ticket_id as "ticketId", user_id as "userId", user_name as "userName", is_internal as "isInternal", comment, created_at as "createdAt"
+        `, [ticket.id, authorName, comment]);
+        return {
+          ...res.rows[0],
+          userRole: 'guest',
+        };
+      } catch (e) {
+        console.warn('Postgres addPublicComment fallback', e);
+      }
+    }
+
+    const newComment: TicketComment = {
+      id: this.commentCounter++,
+      ticketId: ticket.id,
+      userId: null,
+      userName: authorName,
+      userRole: 'guest',
+      isInternal: false,
+      comment,
+      createdAt: new Date().toISOString(),
+    };
+    this.comments.push(newComment);
+    return newComment;
+  }
+
+  public async submitPublicFeedback(
+    ticketNumber: string,
+    verificationCode: string,
+    rating: number,
+    comment?: string
+  ): Promise<TicketFeedback | null> {
+    const ticket = await this.getTicketByTracking(ticketNumber, verificationCode);
+    if (!ticket) return null;
+
+    const authorName = ticket.requesterName || 'ผู้แจ้งซ่อม';
+
+    if (this.isPostgresConnected && this.pool) {
+      try {
+        const res = await this.pool.query(`
+          INSERT INTO ticket_feedback (ticket_id, user_id, rating, comment)
+          VALUES ($1, NULL, $2, $3)
+          ON CONFLICT (ticket_id) DO UPDATE SET rating = EXCLUDED.rating, comment = EXCLUDED.comment
+          RETURNING id, ticket_id as "ticketId", user_id as "userId", rating, comment, created_at as "createdAt"
+        `, [ticket.id, rating, comment || null]);
+        return {
+          ...res.rows[0],
+          userName: authorName,
+        };
+      } catch (e) {
+        console.warn('Postgres submitPublicFeedback fallback', e);
+      }
+    }
+
+    const existingIndex = this.feedbacks.findIndex((f) => f.ticketId === ticket.id);
+    const fb: TicketFeedback = {
+      id: existingIndex !== -1 ? this.feedbacks[existingIndex].id : this.feedbacks.length + 1,
+      ticketId: ticket.id,
+      userId: null,
+      userName: authorName,
+      rating,
+      comment,
+      createdAt: new Date().toISOString(),
+    };
+    if (existingIndex !== -1) {
+      this.feedbacks[existingIndex] = fb;
+    } else {
+      this.feedbacks.push(fb);
+    }
+    return fb;
   }
 
   public async createTicket(ticketData: {

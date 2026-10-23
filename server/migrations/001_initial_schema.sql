@@ -58,7 +58,9 @@ CREATE TABLE IF NOT EXISTS assets (
 CREATE TABLE IF NOT EXISTS tickets (
     id SERIAL PRIMARY KEY,
     ticket_number VARCHAR(30) NOT NULL UNIQUE,
-    requester_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    requester_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    requester_name VARCHAR(100),
+    tracking_code VARCHAR(50),
     department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
     asset_id INTEGER REFERENCES assets(id) ON DELETE SET NULL,
     asset_number_custom VARCHAR(50),
@@ -99,7 +101,8 @@ CREATE TABLE IF NOT EXISTS tickets (
 CREATE TABLE IF NOT EXISTS ticket_comments (
     id SERIAL PRIMARY KEY,
     ticket_id INTEGER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    user_name VARCHAR(100),
     is_internal BOOLEAN NOT NULL DEFAULT FALSE,
     comment TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -109,7 +112,7 @@ CREATE TABLE IF NOT EXISTS ticket_comments (
 CREATE TABLE IF NOT EXISTS ticket_attachments (
     id SERIAL PRIMARY KEY,
     ticket_id INTEGER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
-    uploader_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    uploader_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     filename VARCHAR(255) NOT NULL,
     original_name VARCHAR(255) NOT NULL,
     mime_type VARCHAR(100) NOT NULL,
@@ -122,7 +125,7 @@ CREATE TABLE IF NOT EXISTS ticket_attachments (
 CREATE TABLE IF NOT EXISTS ticket_status_history (
     id SERIAL PRIMARY KEY,
     ticket_id INTEGER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
-    changed_by_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    changed_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     from_status VARCHAR(30),
     to_status VARCHAR(30) NOT NULL,
     notes TEXT,
@@ -133,7 +136,7 @@ CREATE TABLE IF NOT EXISTS ticket_status_history (
 CREATE TABLE IF NOT EXISTS ticket_feedback (
     id SERIAL PRIMARY KEY,
     ticket_id INTEGER NOT NULL UNIQUE REFERENCES tickets(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
     comment TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

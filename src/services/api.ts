@@ -113,6 +113,45 @@ export const api = {
     return request<Ticket>(`/tickets/${id}`);
   },
 
+  // Public Guest Ticket Operations (no auth needed)
+  createPublicTicket: async (formData: FormData) => {
+    return request<Ticket>('/tickets/public', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
+  trackTicket: async (ticketNumber: string, verificationCode: string) => {
+    return request<Ticket>('/tickets/track', {
+      method: 'POST',
+      body: JSON.stringify({ ticketNumber, verificationCode }),
+    });
+  },
+
+  addPublicComment: async (
+    ticketNumber: string,
+    verificationCode: string,
+    comment: string,
+    commenterName?: string
+  ) => {
+    return request<TicketComment>('/tickets/track/comments', {
+      method: 'POST',
+      body: JSON.stringify({ ticketNumber, verificationCode, comment, commenterName }),
+    });
+  },
+
+  submitPublicFeedback: async (
+    ticketNumber: string,
+    verificationCode: string,
+    rating: number,
+    comment?: string
+  ) => {
+    return request<TicketFeedback>('/tickets/track/feedback', {
+      method: 'POST',
+      body: JSON.stringify({ ticketNumber, verificationCode, rating, comment }),
+    });
+  },
+
   createTicket: async (formData: FormData) => {
     return request<Ticket>('/tickets', {
       method: 'POST',

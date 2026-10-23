@@ -13,9 +13,10 @@ import {
 
 interface NavbarProps {
   onToggleSidebar?: () => void;
+  onSwitchToPublicPortal?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, onSwitchToPublicPortal }) => {
   const { user, logout, switchDemoAccount, isAdmin, isTechnician } = useAuth();
   const [showDemoMenu, setShowDemoMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -64,8 +65,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
           </div>
         </div>
 
-        {/* Right: Quick Demo Switcher, User Info & Profile */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        {/* Right: Public View Switcher, Quick Demo Switcher, User Info & Profile */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {onSwitchToPublicPortal && (
+            <button
+              type="button"
+              onClick={onSwitchToPublicPortal}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-900/60 hover:bg-blue-800 text-blue-200 border border-blue-700/50 transition cursor-pointer"
+              title="สลับไปดูหน้าพนักงานแจ้งซ่อม (Public Portal View)"
+            >
+              <Building2 className="w-3.5 h-3.5 text-blue-400" />
+              <span className="hidden sm:inline">ดูหน้าแจ้งซ่อมทั่วไป</span>
+            </button>
+          )}
+
           {/* Quick Demo Switcher */}
           <div className="relative">
             <button
