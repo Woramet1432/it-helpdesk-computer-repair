@@ -44,6 +44,14 @@ export async function login(req: AuthenticatedRequest, res: Response) {
     });
   }
 
+  // Security Policy: Only admin and technician are permitted to login
+  if (user.role !== 'admin' && user.role !== 'technician') {
+    return res.status(403).json({
+      success: false,
+      message: 'ระบบเข้าสู่ระบบสงวนสิทธิ์เฉพาะผู้ดูแลระบบและช่างเทคนิคเท่านั้น (พนักงานทั่วไปสามารถแจ้งซ่อมและติดตามงานได้ทันทีโดยไม่ต้องล็อกอิน)',
+    });
+  }
+
   const token = generateToken({
     id: user.id,
     username: user.username,

@@ -413,6 +413,99 @@ export async function createPublicTicketHandler(req: Request, res: Response) {
   });
 }
 
+export async function listPublicTickets(req: Request, res: Response) {
+  const { status, priority, category, departmentId, search } = req.query;
+
+  const tickets = await db.getTickets({
+    role: 'admin', // public can view all public tickets
+    status: status as string,
+    priority: priority as string,
+    category: category as string,
+    departmentId: departmentId ? Number(departmentId) : undefined,
+    search: search as string,
+  });
+
+  return res.json({
+    success: true,
+    data: tickets,
+  });
+}
+
+export async function getPublicTicketDetail(req: Request, res: Response) {
+  const param = req.params.idOrNumber;
+  if (!param) {
+    return res.status(400).json({ success: false, message: 'กรุณาระบุหมายเลข Ticket' });
+  }
+
+  const ticket = await db.getPublicTicket(param);
+  if (!ticket) {
+    return res.status(404).json({ success: false, message: 'ไม่พบข้อมูลใบแจ้งซ่อม' });
+  }
+
+  return res.json({
+    success: true,
+    data: ticket,
+  });
+}
+
+export async function addPublicCommentDirectHandler(req: Request, res: Response) {
+  const param = req.params.idOrNumber;
+  const { comment, commenterName } = req.body;
+
+  if (!param) {
+    return res.status(400).json({ success: false, message: 'กรุณาระบุหมายเลข Ticket' });
+  }
+
+  const validation = validateComment(req.body);
+  if (!validation.isValid) {
+    return res.status(400).json({
+      success: false,
+      message: 'ข้อความไม่ถูกต้อง',
+      errors: validation.errors,
+    });
+  }
+
+  const newComment = await db.addPublicCommentDirect(param, comment.trim(), commenterName?.trim());
+  if (!newComment) {
+    return res.status(404).json({ success: false, message: 'ไม่พบใบแจ้งซ่อมที่ต้องการส่งข้อความ' });
+  }
+
+  return res.status(201).json({
+    success: true,
+    message: 'ส่งข้อความเรียบร้อยแล้ว',
+    data: newComment,
+  });
+}
+
+export async function submitPublicFeedbackDirectHandler(req: Request, res: Response) {
+  const param = req.params.idOrNumber;
+  const { rating, comment } = req.body;
+
+  if (!param) {
+    return res.status(400).json({ success: false, message: 'กรุณาระบุหมายเลข Ticket' });
+  }
+
+  const validation = validateFeedback(req.body);
+  if (!validation.isValid) {
+    return res.status(400).json({
+      success: false,
+      message: 'คะแนนการประเมินไม่ถูกต้อง',
+      errors: validation.errors,
+    });
+  }
+
+  const fb = await db.submitPublicFeedbackDirect(param, Number(rating), comment?.trim());
+  if (!fb) {
+    return res.status(404).json({ success: false, message: 'ไม่พบใบแจ้งซ่อมที่ต้องการประเมิน' });
+  }
+
+  return res.status(201).json({
+    success: true,
+    message: 'ขอบคุณสำหรับการประเมินความพึงพอใจ',
+    data: fb,
+  });
+}
+
 export async function trackTicketHandler(req: Request, res: Response) {
   const validation = validateTrackTicket(req.body);
   if (!validation.isValid) {

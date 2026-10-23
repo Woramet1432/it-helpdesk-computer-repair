@@ -47,7 +47,7 @@ export class DatabaseService {
       ticketId: 4,
       userId: 4,
       rating: 5,
-      comment: 'ช่างนรินทร์ให้บริการรวดเร็วมาก แนะนำวิธีการตั้งค่า OTP ชัดเจน ขอบคุณมากค่ะ',
+      comment: 'ช่างพิชิตให้บริการรวดเร็วมาก แนะนำวิธีการตั้งค่า OTP ชัดเจน ขอบคุณมากค่ะ',
       createdAt: '2026-10-16T14:30:00.000Z',
     },
     {
@@ -149,6 +149,28 @@ export class DatabaseService {
 
   public isUsingPostgres(): boolean {
     return this.isPostgresConnected;
+  }
+
+  public async resetToSeedData(): Promise<void> {
+    this.departments = JSON.parse(JSON.stringify(INITIAL_DEPARTMENTS));
+    this.users = JSON.parse(JSON.stringify(INITIAL_USERS));
+    this.assets = JSON.parse(JSON.stringify(INITIAL_ASSETS));
+    this.tickets = JSON.parse(JSON.stringify(INITIAL_TICKETS));
+    this.comments = JSON.parse(JSON.stringify(INITIAL_COMMENTS));
+    this.attachments = [];
+    this.statusHistory = JSON.parse(JSON.stringify(INITIAL_STATUS_HISTORY));
+    this.auditLogs = JSON.parse(JSON.stringify(INITIAL_AUDIT_LOGS));
+    if (this.isPostgresConnected && this.pool) {
+      try {
+        const seedPath = path.resolve(process.cwd(), 'server/seeds/001_seed_data.sql');
+        if (fs.existsSync(seedPath)) {
+          const seedSql = fs.readFileSync(seedPath, 'utf8');
+          await this.pool.query(seedSql);
+        }
+      } catch (e) {
+        console.warn('Failed to re-apply seedSql to Postgres:', e);
+      }
+    }
   }
 
   // --- Departments ---
@@ -334,6 +356,22 @@ export class DatabaseService {
         const values: any[] = [];
         let idx = 1;
 
+        if (data.fullName !== undefined) {
+          fields.push(`full_name = $${idx++}`);
+          values.push(data.fullName);
+        }
+        if (data.username !== undefined) {
+          fields.push(`username = $${idx++}`);
+          values.push(data.username);
+        }
+        if (data.email !== undefined) {
+          fields.push(`email = $${idx++}`);
+          values.push(data.email);
+        }
+        if (data.passwordHash !== undefined) {
+          fields.push(`password_hash = $${idx++}`);
+          values.push(data.passwordHash);
+        }
         if (data.role !== undefined) {
           fields.push(`role = $${idx++}`);
           values.push(data.role);
@@ -396,6 +434,24 @@ export class DatabaseService {
       isActive: updated.isActive,
       createdAt: updated.createdAt,
     };
+  }
+
+  public async deleteUser(id: number): Promise<boolean> {
+    if (id === 1) return false; // Protect main super admin
+
+    if (this.isPostgresConnected && this.pool) {
+      try {
+        await this.pool.query('DELETE FROM users WHERE id = $1', [id]);
+        return true;
+      } catch (e) {
+        console.warn('Postgres deleteUser fallback', e);
+      }
+    }
+
+    const index = this.users.findIndex((u) => u.id === id);
+    if (index === -1) return false;
+    this.users.splice(index, 1);
+    return true;
   }
 
   // --- Assets ---
@@ -978,6 +1034,109 @@ export class DatabaseService {
 
     if (!found) return null;
     return this.getTicketById(found.id, false);
+  }
+
+  public async getPublicTicket(idOrNumber: string | number): Promise<Ticket | null> {
+    if (this.isPostgresConnected && this.pool) {
+      try {
+        let condition = 't.id = $1';
+        let val: any = idOrNumber;
+        if (typeof idOrNumber === 'string' && isNaN(Number(idOrNumber))) {
+          condition = 'UPPER(t.ticket_number) = $1';
+          val = idOrNumber.trim().toUpperCase();
+        } else if (typeof idOrNumber === 'string') {
+          val = Number(idOrNumber);
+        }
+        const res = await this.pool.query(`SELECT t.id FROM tickets t WHERE ${condition}`, [val]);
+        if (res.rows[0]) {
+          return this.getTicketById(res.rows[0].id, false);
+        }
+      } catch (e) {
+        console.warn('Postgres getPublicTicket fallback', e);
+      }
+    }
+
+    const found = this.tickets.find((t) => {
+      if (typeof idOrNumber === 'number' || !isNaN(Number(idOrNumber))) {
+        return t.id === Number(idOrNumber) || t.ticketNumber.toUpperCase() === String(idOrNumber).trim().toUpperCase();
+      }
+      return t.ticketNumber.toUpperCase() === String(idOrNumber).trim().toUpperCase();
+    });
+    if (!found) return null;
+    return this.populateTicketRelations(found, false);
+  }
+
+  public async addPublicCommentDirect(
+    ticketIdOrNumber: string | number,
+    comment: string,
+    commenterName?: string
+  ): Promise<TicketComment | null> {
+    const ticket = await this.getPublicTicket(ticketIdOrNumber);
+    if (!ticket) return null;
+
+    const authorName = commenterName?.trim() || ticket.requesterName || 'ผู้แจ้งซ่อม (พนักงาน)';
+
+    if (this.isPostgresConnected && this.pool) {
+      try {
+        const res = await this.pool.query(`
+          INSERT INTO ticket_comments (ticket_id, user_id, user_name, is_internal, comment)
+          VALUES ($1, NULL, $2, FALSE, $3)
+          RETURNING id, ticket_id as "ticketId", user_id as "userId", user_name as "userName", is_internal as "isInternal", comment, created_at as "createdAt"
+        `, [ticket.id, authorName, comment]);
+        return {
+          ...res.rows[0],
+          userRole: 'guest',
+        };
+      } catch (e) {
+        console.warn('Postgres addPublicCommentDirect fallback', e);
+      }
+    }
+
+    const newComment: TicketComment = {
+      id: this.commentCounter++,
+      ticketId: ticket.id,
+      userId: null,
+      userName: authorName,
+      userRole: 'guest',
+      isInternal: false,
+      comment,
+      createdAt: new Date().toISOString(),
+    };
+    this.comments.push(newComment);
+    return newComment;
+  }
+
+  public async submitPublicFeedbackDirect(
+    ticketIdOrNumber: string | number,
+    rating: number,
+    comment?: string
+  ): Promise<TicketFeedback | null> {
+    const ticket = await this.getPublicTicket(ticketIdOrNumber);
+    if (!ticket) return null;
+
+    if (this.isPostgresConnected && this.pool) {
+      try {
+        const res = await this.pool.query(`
+          INSERT INTO ticket_feedback (ticket_id, user_id, rating, comment, created_at)
+          VALUES ($1, NULL, $2, $3, NOW())
+          RETURNING id, ticket_id as "ticketId", user_id as "userId", rating, comment, created_at as "createdAt"
+        `, [ticket.id, rating, comment || null]);
+        return res.rows[0];
+      } catch (e) {
+        console.warn('Postgres submitPublicFeedbackDirect fallback', e);
+      }
+    }
+
+    const newFeedback: TicketFeedback = {
+      id: this.feedbacks.length + 1,
+      ticketId: ticket.id,
+      userId: 0,
+      rating,
+      comment: comment || '',
+      createdAt: new Date().toISOString(),
+    };
+    this.feedbacks.push(newFeedback);
+    return newFeedback;
   }
 
   public async addPublicComment(

@@ -390,35 +390,35 @@ export const TicketManagementPage: React.FC<TicketManagementPageProps> = ({ onSe
       {/* Quick Status & Diagnosis Update Modal */}
       {activeModalTicket && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto space-y-5 animate-in fade-in">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <div className="text-xs text-blue-600 font-mono font-bold">
                   {activeModalTicket.ticketNumber}
                 </div>
-                <h2 className="text-base font-bold text-slate-900 mt-0.5">
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
                   อัปเดตสถานะและการซ่อมแซม (Update Ticket Progress)
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveModalTicket(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer transition"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSaveModal} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    สถานะการทำงาน (Status)
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    1. สถานะการทำงาน (Status) <span className="text-rose-500">*</span>
                   </label>
                   <select
                     value={modalStatus}
                     onChange={(e) => setModalStatus(e.target.value as TicketStatus)}
-                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white font-medium"
                   >
                     <option value="new">แจ้งใหม่ (New)</option>
                     <option value="accepted">รับเรื่องแล้ว (Accepted)</option>
@@ -431,13 +431,13 @@ export const TicketManagementPage: React.FC<TicketManagementPageProps> = ({ onSe
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    ช่างเทคนิคผู้รับผิดชอบ
+                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                    2. ช่างเทคนิคผู้รับผิดชอบ
                   </label>
                   <select
                     value={modalTechId}
                     onChange={(e) => setModalTechId(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white font-medium"
                   >
                     <option value="">-- ยังไม่มอบหมาย --</option>
                     {technicians.map((tech) => (
@@ -447,60 +447,76 @@ export const TicketManagementPage: React.FC<TicketManagementPageProps> = ({ onSe
                     ))}
                   </select>
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    ระดับความสำคัญ
-                  </label>
-                  <select
-                    value={modalPriority}
-                    onChange={(e) => setModalPriority(e.target.value as TicketPriority)}
-                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
-                  >
-                    <option value="low">ต่ำ (Low)</option>
-                    <option value="normal">ปกติ (Normal)</option>
-                    <option value="high">สูง (High)</option>
-                    <option value="critical">วิกฤต (Critical)</option>
-                  </select>
+              {/* Priority Selection */}
+              <div>
+                <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                  3. ระดับความสำคัญ (Priority)
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'normal' as TicketPriority, label: 'ปกติ (Normal)', desc: 'งานทั่วไป' },
+                    { id: 'high' as TicketPriority, label: 'ด่วน (High)', desc: 'งานสะดุด' },
+                    { id: 'critical' as TicketPriority, label: 'วิกฤต (Critical)', desc: 'หยุดชะงัก' },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setModalPriority(p.id)}
+                      className={`p-2.5 rounded-xl border text-center transition cursor-pointer ${
+                        modalPriority === p.id
+                          ? p.id === 'critical'
+                            ? 'border-rose-500 bg-rose-50 text-rose-900 ring-2 ring-rose-300 font-bold'
+                            : p.id === 'high'
+                            ? 'border-amber-500 bg-amber-50 text-amber-900 ring-2 ring-amber-300 font-bold'
+                            : 'border-blue-600 bg-blue-50 text-blue-900 ring-2 ring-blue-300 font-bold'
+                          : 'border-slate-200 hover:border-slate-300 bg-white text-slate-600'
+                      }`}
+                    >
+                      <div className="text-xs font-bold">{p.label}</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">{p.desc}</div>
+                    </button>
+                  ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  ผลการวินิจฉัยปัญหา (Diagnosis)
+                <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                  4. ผลการวินิจฉัยปัญหา (Diagnosis)
                 </label>
                 <textarea
                   rows={2}
                   value={modalDiagnosis}
                   onChange={(e) => setModalDiagnosis(e.target.value)}
                   placeholder="เช่น ตรวจพบ Bad Sector บน SSD, ไดรเวอร์การ์ดจอมีปัญหา..."
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50/50 hover:bg-white focus:bg-white transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  การดำเนินการซ่อมแซม (Repair Actions)
+                <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                  5. การดำเนินการซ่อมแซม (Repair Actions)
                 </label>
                 <textarea
                   rows={2}
                   value={modalRepairActions}
                   onChange={(e) => setModalRepairActions(e.target.value)}
                   placeholder="เช่น สำรองข้อมูลสำคัญ, ติดตั้งไดรเวอร์ใหม่, เปลี่ยนชุดลูกยางดึงกระดาษ..."
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50/50 hover:bg-white focus:bg-white transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  หมายเหตุการปิดงาน (Resolution Notes)
+                <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                  6. หมายเหตุการปิดงาน (Resolution Notes)
                 </label>
                 <textarea
                   rows={2}
                   value={modalResolutionNotes}
                   onChange={(e) => setModalResolutionNotes(e.target.value)}
                   placeholder="เช่น ทดสอบพิมพ์ผ่านแล้ว ผู้ใช้งานทดสอบเข้า Windows ใช้งานได้ปกติ..."
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50/50 hover:bg-white focus:bg-white transition"
                 />
               </div>
 
@@ -508,14 +524,14 @@ export const TicketManagementPage: React.FC<TicketManagementPageProps> = ({ onSe
                 <button
                   type="button"
                   onClick={() => setActiveModalTicket(null)}
-                  className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                  className="px-4 py-2.5 border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer transition"
                 >
                   ยกเลิก
                 </button>
                 <button
                   type="submit"
                   disabled={modalSubmitting}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs"
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-blue-500/25 cursor-pointer transition disabled:opacity-50"
                 >
                   {modalSubmitting ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}
                 </button>

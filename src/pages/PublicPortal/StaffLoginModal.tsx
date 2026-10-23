@@ -45,7 +45,7 @@ export const StaffLoginModal: React.FC<StaffLoginModalProps> = ({
     }
   };
 
-  const handleQuickDemo = async (role: 'admin' | 'tech_wichai' | 'user_kanya' | 'user_pricha') => {
+  const handleQuickDemo = async (role: 'admin' | 'tech_wichai') => {
     setLoading(true);
     setErrorMessage(null);
     try {
@@ -110,7 +110,7 @@ export const StaffLoginModal: React.FC<StaffLoginModalProps> = ({
                 onClick={() => handleQuickDemo('tech_wichai')}
                 className="p-2.5 rounded-lg bg-white border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 text-left transition cursor-pointer"
               >
-                <div className="font-bold text-blue-700">IT Specialist (ช่างวิชัย)</div>
+                <div className="font-bold text-blue-700">IT Specialist (ช่างภูมินทร์)</div>
                 <div className="text-[10px] text-slate-500">รับงานซ่อม, ตรวจเช็ก, บันทึกผล</div>
               </button>
             </div>

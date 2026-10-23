@@ -12,6 +12,10 @@ import {
   trackTicketHandler,
   addPublicCommentHandler,
   submitPublicFeedbackHandler,
+  listPublicTickets,
+  getPublicTicketDetail,
+  addPublicCommentDirectHandler,
+  submitPublicFeedbackDirectHandler,
 } from '../controllers/ticketController.ts';
 import { requireAuth, requireRole } from '../middleware/auth.ts';
 import { uploadAttachment } from '../middleware/upload.ts';
@@ -19,7 +23,11 @@ import { uploadAttachment } from '../middleware/upload.ts';
 const router = Router();
 
 // --- Public Endpoints (No authentication required) ---
-router.post('/public', uploadAttachment.array('attachments', 5), createPublicTicketHandler);
+router.get('/public', listPublicTickets);
+router.get('/public/:idOrNumber', getPublicTicketDetail);
+router.post('/public/:idOrNumber/comments', addPublicCommentDirectHandler);
+router.post('/public/:idOrNumber/feedback', submitPublicFeedbackDirectHandler);
+router.post('/public', uploadAttachment.array('attachments', 5) as any, createPublicTicketHandler);
 router.post('/track', trackTicketHandler);
 router.post('/track/comments', addPublicCommentHandler);
 router.post('/track/feedback', submitPublicFeedbackHandler);
@@ -28,7 +36,7 @@ router.post('/track/feedback', submitPublicFeedbackHandler);
 router.use(requireAuth);
 
 router.get('/', listTickets);
-router.post('/', uploadAttachment.array('attachments', 5), createTicket);
+router.post('/', uploadAttachment.array('attachments', 5) as any, createTicket);
 router.get('/:id', getTicketById);
 router.patch('/:id/status', updateTicketStatus);
 router.patch('/:id/assign', requireRole(['admin']), assignTechnician);

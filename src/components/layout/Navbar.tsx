@@ -99,7 +99,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, onSwitchToPubli
                 onClick={() => setShowDemoMenu(false)}
               >
                 <div className="px-4 py-2 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  เลือกบทบาทเพื่อทดสอบระบบ (Instant Switch)
+                  เลือกบทบาทเจ้าหน้าที่ไอที (Staff Switch)
                 </div>
 
                 <div className="p-1.5 space-y-1">
@@ -111,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, onSwitchToPubli
                   >
                     <div>
                       <div className="font-medium text-slate-900">👑 ผู้ดูแลระบบ (Admin IT)</div>
-                      <div className="text-[11px] text-slate-500">สมศักดิ์ • จัดการตั๋ว, รายงาน, บัญชีผู้ใช้</div>
+                      <div className="text-[11px] text-slate-500">วรเมธ ดีแล้ว (admin) • จัดการตั๋ว, ผู้ใช้งาน, รายงาน</div>
                     </div>
                     {user?.username === 'admin' && <span className="text-xs text-blue-600">✓ ใช้งานอยู่</span>}
                   </button>
@@ -124,35 +124,22 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, onSwitchToPubli
                   >
                     <div>
                       <div className="font-medium text-slate-900">🔧 ช่างเทคนิค (Technician)</div>
-                      <div className="text-[11px] text-slate-500">วิชัย • วินิจฉัย, ซ่อมแซม, อัปเดตสถานะ</div>
+                      <div className="text-[11px] text-slate-500">ภูมินทร์ (tech.wichai) • วินิจฉัย, ซ่อมแซม, อัปเดตงาน</div>
                     </div>
                     {user?.username === 'tech.wichai' && <span className="text-xs text-blue-600">✓ ใช้งานอยู่</span>}
                   </button>
 
                   <button
-                    onClick={() => switchDemoAccount('user_kanya')}
+                    onClick={() => switchDemoAccount('tech_narin')}
                     className={`w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between ${
-                      user?.username === 'user.kanya' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-slate-50 text-slate-700'
+                      user?.username === 'tech.narin' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
                     <div>
-                      <div className="font-medium text-slate-900">👤 พนักงานแจ้งซ่อม (Employee - HR)</div>
-                      <div className="text-[11px] text-slate-500">กัญญา • แจ้งซ่อมคอมพิวเตอร์, ติดตามงาน</div>
+                      <div className="font-medium text-slate-900">🔧 ช่างเทคนิค (Technician)</div>
+                      <div className="text-[11px] text-slate-500">พิชิต เพ่งเเจ่ม (tech.narin) • งานระบบและอุปกรณ์</div>
                     </div>
-                    {user?.username === 'user.kanya' && <span className="text-xs text-blue-600">✓ ใช้งานอยู่</span>}
-                  </button>
-
-                  <button
-                    onClick={() => switchDemoAccount('user_pricha')}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs transition flex items-center justify-between ${
-                      user?.username === 'user.pricha' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-slate-50 text-slate-700'
-                    }`}
-                  >
-                    <div>
-                      <div className="font-medium text-slate-900">👤 พนักงานแจ้งซ่อม (Employee - ACC)</div>
-                      <div className="text-[11px] text-slate-500">ปรีชา • แจ้งซ่อมเครื่องพิมพ์, ประเมินความพึงพอใจ</div>
-                    </div>
-                    {user?.username === 'user.pricha' && <span className="text-xs text-blue-600">✓ ใช้งานอยู่</span>}
+                    {user?.username === 'tech.narin' && <span className="text-xs text-blue-600">✓ ใช้งานอยู่</span>}
                   </button>
                 </div>
               </div>

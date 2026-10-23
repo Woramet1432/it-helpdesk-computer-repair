@@ -147,38 +147,43 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-12">
-      {/* Header Navigation */}
-      <div className="flex items-center justify-between">
+      {/* Top Header Navigation */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 transition"
+          className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs transition cursor-pointer self-start sm:self-auto"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>กลับหน้ารายการตั๋วทั้งหมด (Back to Tickets)</span>
         </button>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border font-mono">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <span className="text-xs bg-white text-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 font-mono font-bold shadow-2xs">
             {ticket.ticketNumber}
           </span>
+          {ticket.trackingCode && (
+            <span className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1.5 rounded-xl border border-blue-200 font-mono font-semibold">
+              PIN: {ticket.trackingCode}
+            </span>
+          )}
           <button
             type="button"
             onClick={fetchTicket}
-            className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600"
-            title="รีเฟรช"
+            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 shadow-2xs cursor-pointer transition"
+            title="รีเฟรชข้อมูล"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Main Grid: Left details + Right workbench form */}
+      {/* Main Grid: Left Details + Right Technician Workbench */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Ticket Info & Comments & Timeline */}
+        {/* Left 2 Cols: Ticket Info, Problem Details, Files & Communication */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Header Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
+          {/* Header Ticket Summary Card */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-7 space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div className="flex items-center gap-2">
                 <CategoryBadge category={ticket.category} />
@@ -188,48 +193,67 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
             </div>
 
             <div>
-              <h1 className="text-lg sm:text-xl font-bold text-slate-900">
+              <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
                 {ticket.title}
               </h1>
 
-              {/* Requester Contact Strip */}
-              <div className="mt-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                <div>
-                  <span className="text-slate-400">ผู้แจ้ง:</span>{' '}
-                  <span className="font-semibold text-slate-900">{ticket.requesterName}</span>
-                  <span className="text-slate-500"> ({ticket.departmentName})</span>
+              {/* Requester Contact Grid Card */}
+              <div className="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <UserCheck className="w-4 h-4 text-blue-600 shrink-0" />
+                  <div>
+                    <span className="text-slate-400">ผู้แจ้ง:</span>{' '}
+                    <span className="font-bold text-slate-900">{ticket.requesterName}</span>
+                    {ticket.departmentName && (
+                      <span className="text-slate-500"> ({ticket.departmentName})</span>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <span className="text-slate-400">เบอร์ติดต่อ:</span>{' '}
-                  <span className="font-semibold text-blue-700">{ticket.contactPhone}</span>
+
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <div>
+                    <span className="text-slate-400">เบอร์ติดต่อ:</span>{' '}
+                    <a href={`tel:${ticket.contactPhone}`} className="font-bold text-blue-700 hover:underline">
+                      {ticket.contactPhone}
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-slate-400">สถานที่:</span>{' '}
-                  <span className="text-slate-800">{ticket.location}</span>
+
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-amber-500 shrink-0" />
+                  <div>
+                    <span className="text-slate-400">สถานที่:</span>{' '}
+                    <span className="font-medium text-slate-800">{ticket.location}</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-slate-400">รหัสทรัพย์สิน:</span>{' '}
-                  <span className="font-mono font-semibold text-slate-800">
-                    {ticket.assetNumber || 'ไม่ได้ระบุ'}
-                  </span>
+
+                <div className="flex items-center gap-2">
+                  <Laptop className="w-4 h-4 text-indigo-500 shrink-0" />
+                  <div>
+                    <span className="text-slate-400">รหัสทรัพย์สิน:</span>{' '}
+                    <span className="font-mono font-bold text-slate-800">
+                      {ticket.assetNumber || 'ไม่ได้ระบุ'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Problem Description */}
-            <div>
-              <div className="text-xs font-bold text-slate-700 mb-1">
+            <div className="space-y-1.5">
+              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                 รายละเอียดปัญหาที่ผู้ใช้แจ้ง (User Problem Description):
               </div>
-              <div className="p-4 rounded-xl bg-slate-50 text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap border border-slate-200">
+              <div className="p-4 rounded-2xl bg-slate-50 text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap border border-slate-200/80 font-normal">
                 {ticket.description}
               </div>
             </div>
 
             {/* Attachments */}
             {ticket.attachments && ticket.attachments.length > 0 && (
-              <div>
-                <div className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+              <div className="space-y-2">
+                <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5 uppercase tracking-wider">
                   <FileText className="w-4 h-4 text-blue-600" />
                   <span>ไฟล์แนบและรูปถ่ายประกอบ ({ticket.attachments.length})</span>
                 </div>
@@ -242,10 +266,10 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
                         href={att.filePath}
                         target="_blank"
                         rel="noreferrer"
-                        className="p-2 rounded-xl border border-slate-200 bg-white hover:border-blue-400 hover:shadow-xs transition group block"
+                        className="p-2.5 rounded-2xl border border-slate-200 bg-white hover:border-blue-400 hover:shadow-xs transition group block"
                       >
                         {isImg ? (
-                          <div className="w-full h-24 bg-slate-100 rounded-lg overflow-hidden mb-1.5">
+                          <div className="w-full h-24 bg-slate-100 rounded-xl overflow-hidden mb-1.5">
                             <img
                               src={att.filePath}
                               alt={att.originalName}
@@ -253,7 +277,7 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
                             />
                           </div>
                         ) : (
-                          <div className="w-full h-24 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 mb-1.5">
+                          <div className="w-full h-24 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 mb-1.5">
                             <FileText className="w-8 h-8 text-blue-500" />
                           </div>
                         )}
@@ -268,31 +292,31 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
             )}
           </div>
 
-          {/* Feedback Card if resolved/closed */}
+          {/* Feedback Card if rated by user */}
           {ticket.feedback && (
-            <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-5 shadow-xs">
+            <div className="bg-amber-50/80 border border-amber-200 rounded-3xl p-5 sm:p-6 shadow-xs">
               <div className="flex items-center gap-2 mb-2">
                 <Star className="w-5 h-5 text-amber-500 fill-amber-400" />
-                <h3 className="text-xs sm:text-sm font-bold text-slate-900">
-                  ผลการประเมินความพึงพอใจจากผู้แจ้งซ่อม (Rating: {ticket.feedback.rating}/5)
+                <h3 className="text-sm font-bold text-slate-900">
+                  ผลการประเมินความพึงพอใจจากผู้แจ้งซ่อม (Rating: {ticket.feedback.rating}/5 ดาว)
                 </h3>
               </div>
-              <div className="text-xs text-slate-700">
+              <div className="text-xs text-slate-700 bg-white/70 p-3.5 rounded-xl border border-amber-100 italic">
                 "{ticket.feedback.comment || 'ไม่มีข้อเสนอแนะเพิ่มเติม'}"
               </div>
             </div>
           )}
 
-          {/* Comments & Internal Notes Thread */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
+          {/* Comments & Communication Thread */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-7 space-y-5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-blue-600" />
                 <h2 className="text-sm font-bold text-slate-900">
-                  ข้อความการสื่อสาร & บันทึกภายใน (Communication & Internal Notes)
+                  ข้อความการสื่อสาร & บันทึกภายในทีม IT
                 </h2>
               </div>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
                 {ticket.comments?.length || 0} ข้อความ
               </span>
             </div>
@@ -301,7 +325,7 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
             <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
               {(!ticket.comments || ticket.comments.length === 0) ? (
                 <div className="p-8 text-center text-slate-400 text-xs">
-                  ยังไม่มีข้อความ สามารถเพิ่มบันทึกภายในหรือตอบกลับผู้ใช้งานได้ด้านล่าง
+                  ยังไม่มีข้อความ สามารถพิมพ์ตอบกลับผู้ใช้งาน หรือบันทึกภายในสำหรับทีม IT ได้ที่ช่องด้านล่าง
                 </div>
               ) : (
                 ticket.comments.map((c) => {
@@ -309,7 +333,7 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
                   return (
                     <div
                       key={c.id}
-                      className={`p-3.5 rounded-xl text-xs border ${
+                      className={`p-4 rounded-2xl text-xs border ${
                         isInt
                           ? 'bg-amber-50/70 border-amber-300 text-amber-950'
                           : c.userRole === 'user'
@@ -317,18 +341,18 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
                           : 'bg-slate-50 border-slate-200 text-slate-800'
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="font-semibold flex items-center gap-1.5">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="font-bold flex items-center gap-2">
                           <span>{c.userName}</span>
                           {isInt && (
                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 font-bold flex items-center gap-1">
                               <Lock className="w-3 h-3" />
-                              บันทึกภายใน (Internal Only - ผู้ใช้ไม่เห็น)
+                              บันทึกภายใน (Internal Note)
                             </span>
                           )}
                           {!isInt && (c.userRole === 'technician' || c.userRole === 'admin') && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">
-                              ช่างเทคนิค
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-semibold">
+                              เจ้าหน้าที่ไอที
                             </span>
                           )}
                         </div>
@@ -341,7 +365,7 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
                           })}
                         </span>
                       </div>
-                      <div className="whitespace-pre-wrap">{c.comment}</div>
+                      <div className="whitespace-pre-wrap leading-relaxed text-slate-700">{c.comment}</div>
                     </div>
                   );
                 })
@@ -349,17 +373,17 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
             </div>
 
             {/* Add Comment Form */}
-            <form onSubmit={handleAddComment} className="pt-3 border-t border-slate-100 space-y-2">
+            <form onSubmit={handleAddComment} className="pt-3 border-t border-slate-100 space-y-3">
               <div className="flex items-center gap-3">
-                <label className="flex items-center gap-1.5 text-xs font-semibold text-amber-900 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 cursor-pointer">
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-amber-900 bg-amber-50 hover:bg-amber-100/70 px-3 py-1.5 rounded-xl border border-amber-200 cursor-pointer transition">
                   <input
                     type="checkbox"
                     checked={isInternal}
                     onChange={(e) => setIsInternal(e.target.checked)}
-                    className="rounded text-amber-600 focus:ring-amber-500"
+                    className="rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
                   />
                   <Lock className="w-3.5 h-3.5 text-amber-600" />
-                  <span>บันทึกภายในสำหรับทีม IT เท่านั้น (Internal Note)</span>
+                  <span>บันทึกภายในสำหรับทีม IT เท่านั้น (ผู้ใช้ไม่เห็น)</span>
                 </label>
               </div>
 
@@ -370,50 +394,56 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
                   onChange={(e) => setCommentText(e.target.value)}
                   placeholder={
                     isInternal
-                      ? 'บันทึกข้อมูลทางเทคนิค, เบิกอุปกรณ์, บันทึกความลับ...'
-                      : 'ตอบกลับผู้ใช้งาน (ผู้แจ้งจะสามารถเห็นข้อความนี้)...'
+                      ? 'บันทึกข้อมูลทางเทคนิค, เบิกอะไหล่, ข้อมูลภายใน...'
+                      : 'ตอบกลับผู้ใช้งาน (ผู้แจ้งจะเห็นข้อความนี้)...'
                   }
-                  className="flex-1 px-3.5 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-4 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 />
                 <button
                   type="submit"
                   disabled={submittingComment || !commentText.trim()}
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition disabled:opacity-50 shadow-xs cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>ส่งข้อความ</span>
+                  <span>ส่ง</span>
                 </button>
               </div>
             </form>
           </div>
         </div>
 
-        {/* Right 1 Col: Technician Workbench Form & History */}
+        {/* Right 1 Col: Technician Workbench (Redesigned like User Form) */}
         <div className="space-y-6">
-          {/* Workbench Form */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+          {/* Main Technician Workbench Form */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-7 space-y-5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h2 className="text-sm font-bold text-slate-900">
-                แผงควบคุมการซ่อม (Technician Workbench)
-              </h2>
+              <div>
+                <div className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
+                  Technician Workbench
+                </div>
+                <h2 className="text-base font-bold text-slate-900 mt-0.5">
+                  แผงบันทึกการทำงาน & วินิจฉัย
+                </h2>
+              </div>
             </div>
 
             {saveSuccess && (
-              <div className="p-3 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-medium flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>บันทึกการทำงานเรียบร้อยแล้ว</span>
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>บันทึกการทำงานและสถานะเรียบร้อยแล้ว</span>
               </div>
             )}
 
-            <form onSubmit={handleSaveWorkbench} className="space-y-3.5">
+            <form onSubmit={handleSaveWorkbench} className="space-y-4">
+              {/* 1. Status Selector */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  1. สถานะใบแจ้งซ่อม (Status)
+                <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                  1. สถานะใบแจ้งซ่อม (Status) <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as TicketStatus)}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white font-medium"
                 >
                   <option value="new">แจ้งใหม่ (New)</option>
                   <option value="accepted">รับเรื่องแล้ว (Accepted)</option>
@@ -425,68 +455,88 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
                 </select>
               </div>
 
+              {/* 2. Assigned Technician */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  2. มอบหมายช่างเทคนิค (Technician)
+                <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                  2. ช่างเทคนิคผู้รับผิดชอบ (Assigned Tech)
                 </label>
                 <select
                   value={assignedTechId}
                   onChange={(e) => setAssignedTechId(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white font-medium"
                 >
                   <option value="">-- ยังไม่ได้มอบหมาย --</option>
                   {technicians.map((t) => (
                     <option key={t.id} value={t.id}>
-                      {t.fullName}
+                      {t.fullName} ({t.role})
                     </option>
                   ))}
                 </select>
               </div>
 
+              {/* 3. Priority Selector (User-like segmented buttons) */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-800 mb-1.5">
                   3. ระดับความสำคัญ (Priority)
                 </label>
-                <select
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value as TicketPriority)}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="low">ต่ำ (Low)</option>
-                  <option value="normal">ปกติ (Normal)</option>
-                  <option value="high">สูง (High)</option>
-                  <option value="critical">วิกฤต (Critical)</option>
-                </select>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'normal' as TicketPriority, label: 'ปกติ (Normal)', desc: 'งานทั่วไป' },
+                    { id: 'high' as TicketPriority, label: 'ด่วน (High)', desc: 'งานสะดุด' },
+                    { id: 'critical' as TicketPriority, label: 'วิกฤต (Critical)', desc: 'หยุดชะงัก' },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setPriority(p.id)}
+                      className={`p-2.5 rounded-xl border text-center transition cursor-pointer ${
+                        priority === p.id
+                          ? p.id === 'critical'
+                            ? 'border-rose-500 bg-rose-50 text-rose-900 ring-2 ring-rose-300 font-bold'
+                            : p.id === 'high'
+                            ? 'border-amber-500 bg-amber-50 text-amber-900 ring-2 ring-amber-300 font-bold'
+                            : 'border-blue-600 bg-blue-50 text-blue-900 ring-2 ring-blue-300 font-bold'
+                          : 'border-slate-200 hover:border-slate-300 bg-white text-slate-600'
+                      }`}
+                    >
+                      <div className="text-xs font-bold">{p.label}</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">{p.desc}</div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
+              {/* 4. Diagnosis */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  4. ผลการวินิจฉัย (Diagnosis)
+                <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                  4. ผลการวินิจฉัยปัญหา (Diagnosis)
                 </label>
                 <textarea
                   rows={2}
                   value={diagnosis}
                   onChange={(e) => setDiagnosis(e.target.value)}
-                  placeholder="สาเหตุของปัญหา เช่น RAM เสีย, ไดรเวอร์ไม่เข้ากัน..."
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  placeholder="สาเหตุของปัญหา เช่น RAM เสีย, ไดรเวอร์ไม่เข้ากัน, สาย LAN ชำรุด..."
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50/50 hover:bg-white focus:bg-white transition"
                 />
               </div>
 
+              {/* 5. Repair Actions */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-800 mb-1.5">
                   5. ขั้นตอนการซ่อมแซม (Repair Actions)
                 </label>
                 <textarea
                   rows={2}
                   value={repairActions}
                   onChange={(e) => setRepairActions(e.target.value)}
-                  placeholder="สิ่งที่ทำไป เช่น สลับ slot RAM, คลีนไดรฟ์ C:..."
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  placeholder="สิ่งที่ทำไป เช่น สลับ slot RAM, คลีนไดรฟ์ C:, เปลี่ยนสายแพร..."
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50/50 hover:bg-white focus:bg-white transition"
                 />
               </div>
 
+              {/* 6. Resolution Notes */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-slate-800 mb-1.5">
                   6. หมายเหตุการปิดงาน (Resolution Notes)
                 </label>
                 <textarea
@@ -494,46 +544,57 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
                   value={resolutionNotes}
                   onChange={(e) => setResolutionNotes(e.target.value)}
                   placeholder="สรุปผลการซ่อม ให้ผู้แจ้งรับทราบ..."
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-slate-50/50 hover:bg-white focus:bg-white transition"
                 />
               </div>
 
+              {/* Submit Save Button */}
               <button
                 type="submit"
                 disabled={savingDetails}
-                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-xs transition"
+                className="w-full py-3.5 px-6 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-500/25 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                {savingDetails ? 'กำลังบันทึกข้อมูล...' : 'บันทึกการทำงาน (Save Changes)'}
+                {savingDetails ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>กำลังบันทึกข้อมูล...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>บันทึกการทำงาน (Save Changes)</span>
+                  </>
+                )}
               </button>
             </form>
           </div>
 
-          {/* Status Timeline */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-3">
-            <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2.5">
-              <History className="w-4 h-4 text-indigo-600" />
-              <h2 className="text-xs font-bold text-slate-900">
+          {/* Status Timeline Card */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-7 space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <History className="w-4 h-4 text-blue-600" />
+              <h2 className="text-sm font-bold text-slate-900">
                 ประวัติการดำเนินการ (Audit Timeline)
               </h2>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-4 text-xs">
               {ticket.history?.map((h, i) => (
-                <div key={h.id} className="relative pl-5 pb-2">
+                <div key={h.id} className="relative pl-6 pb-2">
                   {i !== (ticket.history?.length || 0) - 1 && (
-                    <div className="absolute left-2 top-2 -bottom-2 w-0.5 bg-slate-200" />
+                    <div className="absolute left-2.5 top-2.5 -bottom-2.5 w-0.5 bg-slate-200" />
                   )}
-                  <div className="absolute left-0.5 top-1 w-3 h-3 rounded-full bg-blue-600 border-2 border-white shadow-xs" />
+                  <div className="absolute left-1 top-1 w-3.5 h-3.5 rounded-full bg-blue-600 border-2 border-white shadow-xs" />
                   <div className="font-semibold text-slate-800">
                     <StatusBadge status={h.toStatus} size="sm" />
                   </div>
                   {h.notes && (
-                    <div className="text-slate-600 text-[11px] mt-0.5 leading-snug">
+                    <div className="text-slate-600 text-xs mt-1 leading-relaxed">
                       {h.notes}
                     </div>
                   )}
-                  <div className="text-[10px] text-slate-400 mt-0.5">
-                    โดย {h.changedByName} • {new Date(h.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+                  <div className="text-[11px] text-slate-400 mt-1">
+                    โดย {h.changedByName} • {new Date(h.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}
                   </div>
                 </div>
               ))}

@@ -76,7 +76,7 @@ export const NewTicketPage: React.FC<NewTicketPageProps> = ({ onBack, onSuccess 
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState<TicketPriority>('normal');
   const [departmentId, setDepartmentId] = useState<string>(
-    user?.departmentId ? String(user.departmentId) : '1'
+    user?.departmentId ? String(user.departmentId) : ''
   );
   const [location, setLocation] = useState(user?.location || '');
   const [contactPhone, setContactPhone] = useState(user?.phone || '');

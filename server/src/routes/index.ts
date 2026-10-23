@@ -26,6 +26,16 @@ apiRouter.get('/export-project-zip', (_req, res) => {
   return res.sendFile(zipPath);
 });
 
+apiRouter.post('/system/reset-seeds', async (_req, res) => {
+  try {
+    const { db } = await import('../db/database.ts');
+    await db.resetToSeedData();
+    res.json({ success: true, message: 'ข้อมูลเริ่มต้น (Seed Data) ได้รับการรีเซ็ตและอัปเดตเป็นค่าล่าสุดแล้ว' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to reset seeds' });
+  }
+});
+
 apiRouter.get('/health', (_req, res) => {
   res.json({
     status: 'ok',

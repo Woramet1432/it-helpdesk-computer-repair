@@ -114,6 +114,41 @@ export const api = {
   },
 
   // Public Guest Ticket Operations (no auth needed)
+  getPublicTickets: async (params?: {
+    status?: string;
+    priority?: string;
+    category?: string;
+    departmentId?: number;
+    search?: string;
+  }) => {
+    const q = new URLSearchParams();
+    if (params?.status && params.status !== 'all') q.set('status', params.status);
+    if (params?.priority && params.priority !== 'all') q.set('priority', params.priority);
+    if (params?.category && params.category !== 'all') q.set('category', params.category);
+    if (params?.departmentId) q.set('departmentId', String(params.departmentId));
+    if (params?.search) q.set('search', params.search);
+    const queryStr = q.toString() ? `?${q.toString()}` : '';
+    return request<Ticket[]>(`/tickets/public${queryStr}`);
+  },
+
+  getPublicTicketDetail: async (idOrNumber: string | number) => {
+    return request<Ticket>(`/tickets/public/${idOrNumber}`);
+  },
+
+  addPublicCommentDirect: async (idOrNumber: string | number, comment: string, commenterName?: string) => {
+    return request<TicketComment>(`/tickets/public/${idOrNumber}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ comment, commenterName }),
+    });
+  },
+
+  submitPublicFeedbackDirect: async (idOrNumber: string | number, rating: number, comment?: string) => {
+    return request<TicketFeedback>(`/tickets/public/${idOrNumber}/feedback`, {
+      method: 'POST',
+      body: JSON.stringify({ rating, comment }),
+    });
+  },
+
   createPublicTicket: async (formData: FormData) => {
     return request<Ticket>('/tickets/public', {
       method: 'POST',
@@ -249,6 +284,49 @@ export const api = {
   // Users & Departments
   getUsers: async () => {
     return request<User[]>('/users');
+  },
+
+  createUser: async (data: {
+    username: string;
+    email: string;
+    password: string;
+    fullName: string;
+    role?: string;
+    departmentId?: number | null;
+    phone?: string;
+    location?: string;
+    isActive?: boolean;
+  }) => {
+    return request<User>('/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateUser: async (
+    id: number,
+    data: {
+      username?: string;
+      email?: string;
+      password?: string;
+      fullName?: string;
+      role?: string;
+      departmentId?: number | null;
+      phone?: string;
+      location?: string;
+      isActive?: boolean;
+    }
+  ) => {
+    return request<User>(`/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteUser: async (id: number) => {
+    return request<{ success: boolean; message: string }>(`/users/${id}`, {
+      method: 'DELETE',
+    });
   },
 
   getTechnicians: async () => {

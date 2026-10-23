@@ -31,6 +31,7 @@ import {
 interface PublicNewTicketProps {
   initialCategory?: TicketCategory;
   initialSymptom?: string;
+  initialRequestType?: 'incident' | 'request';
   onBack: () => void;
   onNavigateTrackTicket: (ticketNumber: string, trackingCode?: string) => void;
 }
@@ -48,7 +49,7 @@ export const PublicNewTicket: React.FC<PublicNewTicketProps> = ({
 
   // Form Fields
   const [requesterName, setRequesterName] = useState('');
-  const [departmentId, setDepartmentId] = useState('1'); // Numeric input only
+  const [departmentId, setDepartmentId] = useState(''); // Numeric input only
   const [contactPhone, setContactPhone] = useState('');
   const [category, setCategory] = useState<TicketCategory>(initialCategory || 'computer_laptop');
   const [priority, setPriority] = useState<TicketPriority>('normal');

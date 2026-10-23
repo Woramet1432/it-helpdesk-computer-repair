@@ -27,9 +27,9 @@ SELECT setval('departments_id_seq', (SELECT MAX(id) FROM departments));
 -- 'Tech@123'  -> $2a$10$Y8c49e7pZ4eS7e3yPtu5OQz1t3s1iZ4Q4VfWfG9sK1l9bF5wDEMOT
 -- 'User@123'  -> $2a$10$Z8c49e7pZ4eS7e3yPtu5OQz1t3s1iZ4Q4VfWfG9sK1l9bF5wDEMOU
 INSERT INTO users (id, username, email, password_hash, full_name, role, department_id, phone, location, is_active) VALUES
-(1, 'admin', 'admin@company.co.th', '$2a$10$Y7LqH5.t6vL3hKz4Qy7D8.X2J4tB3m0n9v8w7x6y5z4a3b2c1d0e1', 'สมศักดิ์ ผู้ดูแลระบบไอที', 'admin', 1, '02-123-4501', 'อาคาร A ชั้น 4 ห้อง IT Operations', TRUE),
-(2, 'tech.narin', 'narin.k@company.co.th', '$2a$10$Y7LqH5.t6vL3hKz4Qy7D8.X2J4tB3m0n9v8w7x6y5z4a3b2c1d0e2', 'นรินทร์ ช่างเทคนิคระบบเครือข่าย', 'technician', 1, '02-123-4502', 'อาคาร A ชั้น 4 IT Support Desk', TRUE),
-(3, 'tech.wichai', 'wichai.s@company.co.th', '$2a$10$Y7LqH5.t6vL3hKz4Qy7D8.X2J4tB3m0n9v8w7x6y5z4a3b2c1d0e2', 'วิชัย ช่างซ่อมฮาร์ดแวร์และคอมพิวเตอร์', 'technician', 1, '02-123-4503', 'อาคาร A ชั้น 4 IT Repair Lab', TRUE),
+(1, 'admin', 'admin@company.co.th', '$2a$10$Y7LqH5.t6vL3hKz4Qy7D8.X2J4tB3m0n9v8w7x6y5z4a3b2c1d0e1', 'วรเมธ ดีแล้ว', 'admin', 1, '123', 'อาคาร A ชั้น 4 ห้อง IT Operations', TRUE),
+(2, 'tech.narin', 'narin.k@company.co.th', '$2a$10$Y7LqH5.t6vL3hKz4Qy7D8.X2J4tB3m0n9v8w7x6y5z4a3b2c1d0e2', 'พิชิต เพ่งเเจ่ม', 'technician', 1, '123', 'อาคาร A ชั้น 4 IT Support Desk', TRUE),
+(3, 'tech.wichai', 'wichai.s@company.co.th', '$2a$10$Y7LqH5.t6vL3hKz4Qy7D8.X2J4tB3m0n9v8w7x6y5z4a3b2c1d0e2', 'ภูมินทร์', 'technician', 1, '123', 'อาคาร A ชั้น 4 IT Repair Lab', TRUE),
 (4, 'user.kanya', 'kanya.m@company.co.th', '$2a$10$Y7LqH5.t6vL3hKz4Qy7D8.X2J4tB3m0n9v8w7x6y5z4a3b2c1d0e3', 'กัญญา มณีฉาย', 'user', 2, '02-123-4210', 'อาคาร B ชั้น 2 แผนก HR', TRUE),
 (5, 'user.pricha', 'pricha.t@company.co.th', '$2a$10$Y7LqH5.t6vL3hKz4Qy7D8.X2J4tB3m0n9v8w7x6y5z4a3b2c1d0e3', 'ปรีชา ตั้งมั่นคง', 'user', 3, '02-123-4315', 'อาคาร B ชั้น 3 แผนกการเงิน', TRUE),
 (6, 'user.wipha', 'wipha.r@company.co.th', '$2a$10$Y7LqH5.t6vL3hKz4Qy7D8.X2J4tB3m0n9v8w7x6y5z4a3b2c1d0e3', 'วิภา รัตนโชติ', 'user', 4, '02-123-4420', 'อาคาร A ชั้น 2 แผนกการตลาด', TRUE)
