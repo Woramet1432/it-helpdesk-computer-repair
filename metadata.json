@@ -1,0 +1,6 @@
+{
+  "name": "IT Helpdesk & Computer Repair System",
+  "description": "ระบบแจ้งซ่อมคอมพิวเตอร์และบริการไอทีสำหรับองค์กร - ระบบบริการแจ้งซ่อมและติดตามงานไอทีแบบครบวงจร",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
