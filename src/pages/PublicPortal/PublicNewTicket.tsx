@@ -259,7 +259,7 @@ export const PublicNewTicket: React.FC<PublicNewTicketProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-blue-100">
               <div>
                 <div className="text-xs font-semibold text-blue-700 uppercase tracking-wider">
-                  หมายเลข Ticket (Ticket Number)
+                  เลขที่ใบแจ้งซ่อม
                 </div>
                 <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">
                   {createdTicket.ticketNumber}
@@ -294,7 +294,7 @@ export const PublicNewTicket: React.FC<PublicNewTicketProps> = ({
                     {createdTicket.trackingCode}
                   </div>
                   <div className="text-[11px] text-slate-500">
-                    *ใช้คู่กับหมายเลข Ticket หรือใช้เบอร์โทรศัพท์เพื่อตรวจเช็กสถานะ
+                    *ใช้คู่กับเลขที่ใบแจ้งซ่อม หรือใช้เบอร์โทรศัพท์เพื่อตรวจเช็กสถานะ
                   </div>
                 </div>
                 <button
@@ -671,7 +671,7 @@ export const PublicNewTicket: React.FC<PublicNewTicketProps> = ({
               )}
             </button>
             <p className="text-center text-[11px] text-slate-400 mt-2">
-              เมื่อส่งแล้ว คุณจะได้รับหมายเลข Ticket และรหัสติดตาม สำหรับตรวจสอบความคืบหน้าได้ตลอด 24 ชม.
+              เมื่อส่งแล้ว คุณจะได้รับเลขที่ใบแจ้งซ่อมและรหัสติดตาม สำหรับตรวจสอบความคืบหน้าได้ตลอด 24 ชม.
             </p>
           </div>
 

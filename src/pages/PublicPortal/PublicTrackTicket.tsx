@@ -328,7 +328,7 @@ export const PublicTrackTicket: React.FC<PublicTrackTicketProps> = ({
 
           <div className="flex items-center gap-3">
             <span className="text-xs text-slate-500 font-mono">
-              Ticket ID: <strong className="text-slate-800">{selectedTicket.ticketNumber}</strong>
+              เลขที่ใบแจ้งซ่อม: <strong className="text-slate-800">{selectedTicket.ticketNumber}</strong>
             </span>
             <button
               type="button"
@@ -697,7 +697,7 @@ export const PublicTrackTicket: React.FC<PublicTrackTicketProps> = ({
               })
             ) : (
               <div className="text-center py-6 text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-200/60">
-                ยังไม่มีข้อความสนทนาใน Ticket นี้ สามารถพิมพ์สอบถามหรือระบุข้อมูลเพิ่มเติมได้ด้านล่าง
+                ยังไม่มีข้อความสนทนาในรายการนี้ สามารถพิมพ์สอบถามหรือระบุข้อมูลเพิ่มเติมได้ด้านล่าง
               </div>
             )}
           </div>
@@ -856,7 +856,7 @@ export const PublicTrackTicket: React.FC<PublicTrackTicketProps> = ({
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="ค้นหาด้วยหมายเลข Ticket (เช่น TK-202610-0001), ชื่องานซ่อม, ชื่อผู้แจ้ง, แผนก, อาคาร/สถานที่ หรือรหัสครุภัณฑ์..."
+            placeholder="ค้นหาด้วยเลขที่ใบแจ้งซ่อม (เช่น TK-202610-0001), ชื่องานซ่อม, ชื่อผู้แจ้ง, แผนก, อาคาร/สถานที่ หรือรหัสครุภัณฑ์..."
             className="w-full pl-12 pr-10 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 bg-slate-50 focus:bg-white transition"
           />
           {searchTerm && (
@@ -994,7 +994,7 @@ export const PublicTrackTicket: React.FC<PublicTrackTicketProps> = ({
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="bg-slate-50/90 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-                    <th className="py-3.5 px-4 whitespace-nowrap">หมายเลข Ticket / วันที่แจ้ง</th>
+                    <th className="py-3.5 px-4 whitespace-nowrap">เลขที่ใบแจ้งซ่อม / วันที่แจ้ง</th>
                     <th className="py-3.5 px-4 min-w-[220px]">หัวข้อแจ้งซ่อม & รายละเอียด</th>
                     <th className="py-3.5 px-3 whitespace-nowrap">หมวดหมู่</th>
                     <th className="py-3.5 px-3 whitespace-nowrap">ความสำคัญ</th>

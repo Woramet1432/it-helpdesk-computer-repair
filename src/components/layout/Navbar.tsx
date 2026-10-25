@@ -111,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, onSwitchToPubli
                   >
                     <div>
                       <div className="font-medium text-slate-900">👑 ผู้ดูแลระบบ (Admin IT)</div>
-                      <div className="text-[11px] text-slate-500">วรเมธ ดีแล้ว (admin) • จัดการตั๋ว, ผู้ใช้งาน, รายงาน</div>
+                      <div className="text-[11px] text-slate-500">วรเมธ ดีแล้ว (admin) • จัดการรายการแจ้งซ่อม, ผู้ใช้งาน, รายงาน</div>
                     </div>
                     {user?.username === 'admin' && <span className="text-xs text-blue-600">✓ ใช้งานอยู่</span>}
                   </button>

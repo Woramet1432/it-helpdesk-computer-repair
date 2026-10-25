@@ -150,7 +150,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 >
                   <div className="flex items-center gap-3">
                     <Ticket className="w-4 h-4 text-amber-500" />
-                    <span>จัดการตั๋วทั้งหมด</span>
+                    <span>จัดการรายการแจ้งซ่อม</span>
                   </div>
                   {newTicketCount > 0 && (
                     <span className="text-[10px] bg-rose-500 text-white px-1.5 py-0.5 rounded-full font-bold">

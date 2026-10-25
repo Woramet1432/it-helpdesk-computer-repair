@@ -213,7 +213,7 @@ export const NewTicketPage: React.FC<NewTicketPageProps> = ({ onBack, onSuccess 
         </button>
 
         <div className="text-xs text-slate-400">
-          ระบบจะสร้างเลขที่ตั๋วอัตโนมัติ (เช่น TK-202610-XXXX)
+          ระบบจะสร้างเลขที่ใบแจ้งซ่อมโดยอัตโนมัติ (เช่น TK-202610-XXXX)
         </div>
       </div>
 

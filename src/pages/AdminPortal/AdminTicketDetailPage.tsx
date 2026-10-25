@@ -137,7 +137,7 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
     return (
       <div className="p-12 text-center bg-white rounded-2xl border border-slate-200">
         <AlertTriangle className="w-12 h-12 text-rose-500 mx-auto mb-3" />
-        <h2 className="text-base font-bold text-slate-900">ไม่พบตั๋วแจ้งซ่อม</h2>
+        <h2 className="text-base font-bold text-slate-900">ไม่พบรายการแจ้งซ่อม</h2>
         <button onClick={onBack} className="mt-4 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs">
           กลับหน้ารายการ
         </button>
@@ -155,7 +155,7 @@ export const AdminTicketDetailPage: React.FC<AdminTicketDetailPageProps> = ({ ti
           className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs transition cursor-pointer self-start sm:self-auto"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>กลับหน้ารายการตั๋วทั้งหมด (Back to Tickets)</span>
+          <span>กลับหน้ารายการแจ้งซ่อมทั้งหมด</span>
         </button>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">

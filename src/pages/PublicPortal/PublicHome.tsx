@@ -122,7 +122,7 @@ export const PublicHome: React.FC<PublicHomeProps> = ({
             <div className="text-xs font-bold text-blue-600 mt-5">สะดวก & รวดเร็ว</div>
             <h2 className="text-xl font-bold text-slate-900 mt-1">แจ้งซ่อมทันที</h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">
-              เปิดคำขอแจ้งซ่อมอุปกรณ์คอมพิวเตอร์ ปริ้นเตอร์ อินเทอร์เน็ต หรือโปรแกรม ไม่ต้องใช้บัญชีผู้ใช้ รับหมายเลข Ticket ทันที
+              เปิดคำขอแจ้งซ่อมอุปกรณ์คอมพิวเตอร์ ปริ้นเตอร์ อินเทอร์เน็ต หรือโปรแกรม ไม่ต้องใช้บัญชีผู้ใช้ รับเลขที่ใบแจ้งซ่อมทันที
             </p>
           </div>
 

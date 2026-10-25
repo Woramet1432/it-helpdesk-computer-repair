@@ -64,7 +64,7 @@ export const UserTicketHistory: React.FC<UserTicketHistoryProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
-            ประวัติการแจ้งซ่อมของฉัน (Ticket History)
+            ประวัติการแจ้งซ่อมของฉัน (Request History)
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             รายการคำขอบริการไอทีทั้งหมดที่คุณเคยสร้างไว้ในระบบ
@@ -77,7 +77,7 @@ export const UserTicketHistory: React.FC<UserTicketHistoryProps> = ({
           className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm shadow-xs transition flex items-center gap-2 self-start sm:self-auto"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>แจ้งซ่อมใหม่ (+ Create Ticket)</span>
+          <span>แจ้งซ่อมใหม่</span>
         </button>
       </div>
 
@@ -90,7 +90,7 @@ export const UserTicketHistory: React.FC<UserTicketHistoryProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ค้นหาตามเลขที่ตั๋ว, หัวข้อปัญหา, รหัสทรัพย์สิน..."
+              placeholder="ค้นหาตามเลขที่ใบแจ้งซ่อม, หัวข้อปัญหา, รหัสทรัพย์สิน..."
               className="w-full pl-9 pr-4 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -166,7 +166,7 @@ export const UserTicketHistory: React.FC<UserTicketHistoryProps> = ({
             <table className="w-full text-left text-xs text-slate-600">
               <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3.5">เลขที่ตั๋ว</th>
+                  <th className="px-4 py-3.5">เลขที่ใบแจ้งซ่อม</th>
                   <th className="px-4 py-3.5">หมวดหมู่</th>
                   <th className="px-4 py-3.5">หัวข้อปัญหา</th>
                   <th className="px-4 py-3.5">รหัสทรัพย์สิน</th>

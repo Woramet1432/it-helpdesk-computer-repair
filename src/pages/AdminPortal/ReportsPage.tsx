@@ -286,14 +286,14 @@ export const ReportsPage: React.FC = () => {
           </div>
         ) : reportTickets.length === 0 ? (
           <div className="p-12 text-center text-slate-400 text-xs">
-            ไม่พบข้อมูลตั๋วตรงตามเงื่อนไขที่เลือก
+            ไม่พบข้อมูลรายการแจ้งซ่อมตรงตามเงื่อนไขที่เลือก
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-600">
               <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3">เลขที่ตั๋ว</th>
+                  <th className="px-4 py-3">เลขที่ใบแจ้งซ่อม</th>
                   <th className="px-4 py-3">วันที่แจ้ง</th>
                   <th className="px-4 py-3">ผู้แจ้ง</th>
                   <th className="px-4 py-3">แผนก</th>

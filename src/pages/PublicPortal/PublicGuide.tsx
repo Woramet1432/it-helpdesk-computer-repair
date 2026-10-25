@@ -36,7 +36,7 @@ export const PublicGuide: React.FC<PublicGuideProps> = ({
       team: 'ศูนย์บริการไอทีกลาง (IT Service Desk Hotline)',
       ext: 'เบอร์ต่อ 1101, 1102',
       lead: 'จุดรับเรื่องส่วนกลาง',
-      desc: 'สำหรับแจ้งปัญหาทั่วไป ขอรับบริการด่วน และสอบถามสถานะ Ticket',
+      desc: 'สำหรับแจ้งปัญหาทั่วไป ขอรับบริการด่วน และสอบถามสถานะงานซ่อม',
     },
     {
       team: 'ทีมคอมพิวเตอร์และอุปกรณ์พนักงาน (Client Hardware & OS)',
@@ -134,9 +134,9 @@ export const PublicGuide: React.FC<PublicGuideProps> = ({
             <div className="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
               2
             </div>
-            <div className="text-xs font-bold text-slate-900">รับหมายเลข Ticket</div>
+            <div className="text-xs font-bold text-slate-900">รับเลขที่ใบแจ้งซ่อม</div>
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              ระบบออกหมายเลข Ticket และรหัสติดตามงานไว้สำหรับตรวจสอบความคืบหน้า
+              ระบบออกเลขที่ใบแจ้งซ่อมและรหัสติดตามงานไว้สำหรับตรวจสอบความคืบหน้า
             </p>
           </div>
 
@@ -260,7 +260,7 @@ export const PublicGuide: React.FC<PublicGuideProps> = ({
             onClick={onNavigateTrackTicket}
             className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition border border-slate-700 cursor-pointer"
           >
-            ติดตามสถานะ Ticket
+            ติดตามสถานะการแจ้งซ่อม
           </button>
           <button
             type="button"

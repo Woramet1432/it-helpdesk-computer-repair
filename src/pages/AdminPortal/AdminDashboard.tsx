@@ -127,7 +127,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
         {/* Total */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <div className="text-[11px] font-medium text-slate-500">ตั๋วทั้งหมด</div>
+          <div className="text-[11px] font-medium text-slate-500">รายการแจ้งซ่อมทั้งหมด</div>
           <div className="text-2xl font-bold text-slate-900 mt-1">{metrics?.totalTickets || 0}</div>
           <div className="text-[10px] text-slate-400 mt-0.5">ทุกประเภทงาน</div>
         </div>
@@ -287,7 +287,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h2 className="text-sm sm:text-base font-bold text-slate-900">
-              ตั๋วงานล่าสุด & จัดการมอบหมายช่าง (Recent Tickets & Quick Assign)
+              รายการแจ้งซ่อมล่าสุด & จัดการมอบหมายช่าง (Recent Requests & Quick Assign)
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
               คลิกที่แถวเพื่อเข้าสู่หน้าทำงานของช่าง หรือเลือกจ่ายงานให้ช่างเทคนิคได้ทันที
@@ -299,7 +299,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             onClick={onNavigateTickets}
             className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition"
           >
-            <span>เปิดหน้าจัดการตั๋วเต็มรูปแบบ</span>
+            <span>เปิดหน้าจัดการรายการแจ้งซ่อม</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -308,7 +308,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <table className="w-full text-left text-xs text-slate-600">
             <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
               <tr>
-                <th className="px-4 py-3">เลขที่ตั๋ว</th>
+                <th className="px-4 py-3">เลขที่ใบแจ้งซ่อม</th>
                 <th className="px-4 py-3">ผู้แจ้ง & แผนก</th>
                 <th className="px-4 py-3">หัวข้อปัญหา</th>
                 <th className="px-4 py-3">ความสำคัญ</th>

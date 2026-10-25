@@ -68,7 +68,7 @@ export async function exportCsv(req: AuthenticatedRequest, res: Response) {
 
   // Prepare CSV header and rows
   const headers = [
-    'หมายเลขตั๋ว',
+    'เลขที่ใบแจ้งซ่อม',
     'วันที่แจ้ง',
     'ผู้แจ้งซ่อม',
     'แผนก',

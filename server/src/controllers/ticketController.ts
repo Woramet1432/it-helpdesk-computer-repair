@@ -44,7 +44,7 @@ export async function getTicketById(req: AuthenticatedRequest, res: Response) {
 
   const id = Number(req.params.id);
   if (isNaN(id)) {
-    return res.status(400).json({ success: false, message: 'รหัสตั๋วไม่ถูกต้อง' });
+    return res.status(400).json({ success: false, message: 'รหัสใบแจ้งซ่อมไม่ถูกต้อง' });
   }
 
   const isStaff = req.user.role === 'admin' || req.user.role === 'technician';
@@ -271,7 +271,7 @@ export async function addComment(req: AuthenticatedRequest, res: Response) {
 
   // User permission check
   if (req.user.role === 'user' && ticket.requesterId !== req.user.userId) {
-    return res.status(403).json({ success: false, message: 'คุณไม่มีสิทธิ์ส่งความคิดเห็นในตั๋วนี้' });
+    return res.status(403).json({ success: false, message: 'คุณไม่มีสิทธิ์ส่งความคิดเห็นในรายการนี้' });
   }
 
   const validation = validateComment(req.body);

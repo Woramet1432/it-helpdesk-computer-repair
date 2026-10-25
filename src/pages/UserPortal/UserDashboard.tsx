@@ -88,7 +88,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
             className="px-4 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 font-semibold text-xs sm:text-sm text-white shadow-lg shadow-blue-500/30 transition flex items-center gap-2"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>แจ้งซ่อมใหม่ (Submit Ticket)</span>
+            <span>แจ้งซ่อมใหม่</span>
           </button>
         </div>
       </div>
@@ -202,7 +202,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
             <table className="w-full text-left text-xs text-slate-600">
               <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3">เลขที่ตั๋ว</th>
+                  <th className="px-4 py-3">เลขที่ใบแจ้งซ่อม</th>
                   <th className="px-4 py-3">หมวดหมู่</th>
                   <th className="px-4 py-3">หัวข้อปัญหา</th>
                   <th className="px-4 py-3">ความสำคัญ</th>

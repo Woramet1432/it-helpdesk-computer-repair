@@ -139,7 +139,7 @@ export const TicketManagementPage: React.FC<TicketManagementPageProps> = ({ onSe
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
-            ระบบจัดการตั๋วแจ้งซ่อมทั้งหมด (Ticket Management)
+            ระบบจัดการรายการแจ้งซ่อมทั้งหมด
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             ค้นหา ตรวจสอบ มอบหมายช่างเทคนิค และติดตามสถานะงานซ่อมบำรุงในองค์กร
@@ -166,7 +166,7 @@ export const TicketManagementPage: React.FC<TicketManagementPageProps> = ({ onSe
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="ค้นหาตามเลขที่ตั๋ว, ชื่อผู้แจ้ง, รายละเอียดปัญหา, รหัสทรัพย์สิน..."
+                placeholder="ค้นหาตามเลขที่ใบแจ้งซ่อม, ชื่อผู้แจ้ง, รายละเอียดปัญหา, รหัสทรัพย์สิน..."
                 className="w-full pl-9 pr-4 py-2.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -290,12 +290,12 @@ export const TicketManagementPage: React.FC<TicketManagementPageProps> = ({ onSe
         {loading ? (
           <div className="p-16 text-center text-slate-400 text-xs">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-600" />
-            กำลังโหลดข้อมูลตั๋วงานไอที...
+            กำลังโหลดข้อมูลรายการแจ้งซ่อม...
           </div>
         ) : tickets.length === 0 ? (
           <div className="p-16 text-center text-slate-500">
             <Layers className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <div className="text-sm font-semibold">ไม่พบตั๋วแจ้งซ่อมตามเงื่อนไข</div>
+            <div className="text-sm font-semibold">ไม่พบรายการแจ้งซ่อมตามเงื่อนไข</div>
             <p className="text-xs text-slate-400 mt-1">ลองปรับตัวกรองหรือล้างคำค้นหา</p>
           </div>
         ) : (
@@ -303,7 +303,7 @@ export const TicketManagementPage: React.FC<TicketManagementPageProps> = ({ onSe
             <table className="w-full text-left text-xs text-slate-600">
               <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3.5">เลขที่ตั๋ว</th>
+                  <th className="px-4 py-3.5">เลขที่ใบแจ้งซ่อม</th>
                   <th className="px-4 py-3.5">ผู้แจ้ง & แผนก</th>
                   <th className="px-4 py-3.5">หมวดหมู่</th>
                   <th className="px-4 py-3.5">หัวข้อปัญหา & ทรัพย์สิน</th>
@@ -397,7 +397,7 @@ export const TicketManagementPage: React.FC<TicketManagementPageProps> = ({ onSe
                   {activeModalTicket.ticketNumber}
                 </div>
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
-                  อัปเดตสถานะและการซ่อมแซม (Update Ticket Progress)
+                  อัปเดตสถานะและการซ่อมแซม (Update Repair Progress)
                 </h2>
               </div>
               <button
